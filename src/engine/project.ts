@@ -56,6 +56,8 @@ function run(plan: Plan, provision: number | null, provisionAuto: boolean): Proj
   let rentalsDelayedYears = 0;
   let rentalsBought = 0;
   let rentalsSold = 0;
+  let giftedToday = 0;
+  let housesGifted = 0;
   let delayedLastYear = false;
   let shortfallLastYear = false;
   let freedomAnnounced = false;
@@ -217,6 +219,26 @@ function run(plan: Plan, provision: number | null, provisionAuto: boolean): Proj
     }
     cashFlow -= purchases;
 
+    // ---- give a rental house to each child at the chosen age ----------
+    // The child takes the house with its remaining loan; the gift is the equity.
+    let giftedEquity = 0;
+    const giftAge = plan.legacy.giftHouseAtChildAge;
+    if (giftAge !== null) {
+      const due = childrenAges.filter((a) => a === giftAge).length;
+      for (let g = 0; g < due && properties.length > 0; g++) {
+        let best = 0;
+        for (let i = 1; i < properties.length; i++) {
+          if (properties[i].value - properties[i].loanBalance > properties[best].value - properties[best].loanBalance) best = i;
+        }
+        const house = properties.splice(best, 1)[0];
+        const equity = house.value - house.loanBalance;
+        giftedEquity += equity;
+        giftedToday += equity * deflator;
+        housesGifted++;
+        events.push(`Gave a child a house (${fmt(equity)} equity)`);
+      }
+    }
+
     // ---- sell rentals to refill savings when they run low -------------
     // Once the first sale happens the portfolio is being harvested, so no
     // more purchases follow (see the purchase condition above).
@@ -288,6 +310,7 @@ function run(plan: Plan, provision: number | null, provisionAuto: boolean): Proj
       cashFlow,
       purchases,
       saleProceeds,
+      giftedEquity,
       investmentReturn,
       investments,
       homeValue,
@@ -316,6 +339,16 @@ function run(plan: Plan, provision: number | null, provisionAuto: boolean): Proj
   const summary = summarize(plan, rows, birthAges, rentalsDelayedYears, provision, provisionAuto);
   summary.rentalsAcquired = rentalsBought;
   summary.rentalsSold = rentalsSold;
+  const last = rows[rows.length - 1];
+  const kids = plan.family.marriageAge === null ? 0 : plan.family.childrenCount;
+  const grandchildrenTotal = kids > 0 ? plan.legacy.grandchildren * plan.legacy.perGrandchild : 0;
+  summary.legacy = {
+    giftedToday,
+    housesGifted,
+    housesAtEnd: last.rentalsOwned + (last.homeValue > 0 ? 1 : 0),
+    grandchildrenTotal,
+    perChildTotalToday: (summary.estate.todayDollars - grandchildrenTotal + giftedToday) / Math.max(1, kids),
+  };
   return { plan, rows, summary };
 }
 
@@ -354,6 +387,7 @@ function summarize(
     peakExpenseYear: peak,
     rentalsAcquired: last.rentalsOwned,
     rentalsSold: 0,
+    legacy: { giftedToday: 0, housesGifted: 0, housesAtEnd: 0, grandchildrenTotal: 0, perChildTotalToday: 0 },
     rentalsDelayedYears,
     shortfallYears: rows.filter((r) => r.investments < 0).map((r) => r.year),
     estate: {

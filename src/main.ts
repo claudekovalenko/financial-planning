@@ -78,10 +78,13 @@ function start(session: Session): void {
       plan: structuredClone(plan),
       facts: {
         leavePerChild: plan.legacy.perChild,
-        spendNowPerMonth: a.spendNowPerMonth,
-        spendPeakPerMonth: a.spendPeakPerMonth,
+        stretchPerChild: plan.legacy.stretchPerChild,
+        spendNowPerMonth: a.goal.spendNowPerMonth,
+        stretchSpendNowPerMonth: a.stretch.spendNowPerMonth,
+        spendPeakPerMonth: a.goal.spendPeakPerMonth,
         currentRunsOutAge: a.current.runsOutAge,
         savings: plan.savings.current,
+        houses: a.goal.projection ? a.goal.projection.summary.legacy.housesGifted + a.goal.projection.summary.legacy.housesAtEnd : undefined,
       },
     };
     versions = [v, ...versions];
@@ -247,7 +250,13 @@ function start(session: Session): void {
       const a = legacyAnswer(plan);
       lastAnswer = a;
       renderLegacy(a);
-      legacyChart.update(a.atTarget?.rows ?? null, a.current.projection.rows, `Spending to leave ${money(a.target)} each`);
+      legacyChart.update(
+        [
+          ...(a.goal.projection ? [{ label: `Leaving ${money(a.goal.target)} each`, rows: a.goal.projection.rows }] : []),
+          ...(a.stretch.projection && a.stretch.target !== a.goal.target ? [{ label: `Leaving ${money(a.stretch.target)} each`, rows: a.stretch.projection.rows }] : []),
+        ],
+        a.current.projection.rows,
+      );
       renderSimpleYears(a.current.projection.rows);
       showVersions();
       $('plan-label').textContent = planLabel(plan);

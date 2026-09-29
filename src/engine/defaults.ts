@@ -17,6 +17,10 @@ export const defaultPlan: Plan = {
   },
   legacy: {
     perChild: 500_000,
+    stretchPerChild: 1_000_000,
+    grandchildren: 20,
+    perGrandchild: 0,
+    giftHouseAtChildAge: null,
   },
   income: {
     salary: 0,

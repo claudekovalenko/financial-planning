@@ -20,10 +20,21 @@ export interface Section {
 export const sections: Section[] = [
   {
     id: 'essentials',
-    title: 'The essentials',
+    title: 'Your legacy',
     essentials: true,
     fields: [
-      { path: 'legacy.perChild', label: 'Leave each child (today $)', kind: 'money', step: 25000 },
+      { path: 'legacy.perChild', label: 'Leave each child at least (today $)', kind: 'money', step: 50000 },
+      { path: 'legacy.stretchPerChild', label: 'Stretch goal per child (today $)', kind: 'money', step: 50000 },
+      { path: 'legacy.perGrandchild', label: 'Set aside for each grandchild (today $)', kind: 'money', step: 5000, help: '0 to leave it all to your children.' },
+      { path: 'legacy.grandchildren', label: 'Grandchildren you expect', kind: 'int' },
+      { path: 'legacy.giftHouseAtChildAge', label: 'Give each child a house at age', kind: 'nullableAge', help: 'A rental house when they start their own family. Blank = houses pass on at your passing.' },
+    ],
+  },
+  {
+    id: 'essentials-life',
+    title: 'Your life today',
+    essentials: true,
+    fields: [
       { path: 'savings.current', label: 'Savings and investments today', kind: 'money', step: 10000 },
       { path: 'spending.monthlyBase', label: 'Monthly spending, not counting rent', kind: 'money', step: 100, help: 'Everything you spend today except rent and giving.' },
       { path: 'spending.monthlyRent', label: 'Rent per month', kind: 'money', step: 50 },
@@ -37,7 +48,11 @@ export const sections: Section[] = [
     id: 'you',
     title: 'You and your legacy',
     fields: [
-      { path: 'legacy.perChild', label: 'Leave each child (today $)', kind: 'money', step: 25000 },
+      { path: 'legacy.perChild', label: 'Leave each child at least (today $)', kind: 'money', step: 50000 },
+      { path: 'legacy.stretchPerChild', label: 'Stretch goal per child (today $)', kind: 'money', step: 50000 },
+      { path: 'legacy.perGrandchild', label: 'Set aside for each grandchild (today $)', kind: 'money', step: 5000 },
+      { path: 'legacy.grandchildren', label: 'Grandchildren you expect', kind: 'int' },
+      { path: 'legacy.giftHouseAtChildAge', label: 'Give each child a house at age', kind: 'nullableAge', help: 'Blank = at your passing.' },
       { path: 'meta.name', label: 'Plan name', kind: 'text' },
       { path: 'meta.startYear', label: 'Start year', kind: 'int' },
       { path: 'meta.currentAge', label: 'Current age', kind: 'age' },

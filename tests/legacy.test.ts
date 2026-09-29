@@ -7,43 +7,56 @@ import { freshPlan } from '../src/engine/defaults.ts';
 const plan = () => {
   const p = freshPlan();
   p.savings.current = 2_000_000;
-  p.rentals.enabled = false;
   p.spending.surplusGivingRate = 0;
   p.rentals.sellWhenShort = false;
   return p;
 };
 
 describe('legacy', () => {
-  it('finds the spending level that leaves exactly the target per child', () => {
+  it('finds the spending level that leaves at least the target per child', () => {
     const p = plan();
-    p.legacy.perChild = 100_000;
+    p.legacy.perChild = 1_000_000;
     const f = solveLegacyShare(p)!;
     expect(f).toBeGreaterThan(0.05);
     const at = project(scaleLifestyle(p, f)).summary;
     expect(at.shortfallYears).toEqual([]);
-    expect(at.estate.perChildToday).toBeGreaterThanOrEqual(100_000);
+    expect(at.legacy.perChildTotalToday).toBeGreaterThanOrEqual(1_000_000);
     const over = project(scaleLifestyle(p, f + 0.02)).summary;
-    expect(over.shortfallYears.length > 0 || over.estate.perChildToday < 100_000).toBe(true);
+    expect(over.shortfallYears.length > 0 || over.legacy.perChildTotalToday < 1_000_000).toBe(true);
   });
 
-  it('a bigger legacy means less to spend', () => {
-    const small = plan();
-    small.legacy.perChild = 0;
-    const big = plan();
-    big.legacy.perChild = 500_000;
-    expect(solveLegacyShare(big)!).toBeLessThan(solveLegacyShare(small)!);
+  it('the stretch goal leaves less to spend than the goal', () => {
+    const a = legacyAnswer(plan());
+    expect(a.goal.target).toBe(500_000);
+    expect(a.stretch.target).toBe(1_000_000);
+    expect(a.stretch.spendNowPerMonth!).toBeLessThanOrEqual(a.goal.spendNowPerMonth!);
   });
 
-  it('reports spending and outcome at both levels', () => {
+  it('setting money aside for grandchildren lowers what the children get and what can be spent', () => {
+    const none = plan();
+    const some = plan();
+    some.legacy.perGrandchild = 50_000;
+    some.legacy.grandchildren = 20;
+    const s0 = project(none).summary.legacy;
+    const s1 = project(some).summary.legacy;
+    expect(s1.grandchildrenTotal).toBe(1_000_000);
+    expect(s0.perChildTotalToday - s1.perChildTotalToday).toBeCloseTo(1_000_000 / 7, 6);
+    none.legacy.perChild = some.legacy.perChild = 1_000_000;
+    expect(solveLegacyShare(some)!).toBeLessThanOrEqual(solveLegacyShare(none)!);
+  });
+
+  it('gives each child a house at the chosen age and counts it toward their share', () => {
     const p = plan();
-    const a = legacyAnswer(p);
-    expect(a.target).toBe(500_000);
-    expect(a.current.spendNowPerMonth).toBeGreaterThan(0);
-    expect(a.current.runsOutAge).not.toBeNull();
-    if (a.share !== null) {
-      expect(a.spendNowPerMonth!).toBeLessThan(a.current.spendNowPerMonth);
-      expect(a.atTarget!.summary.estate.perChildToday).toBeGreaterThanOrEqual(500_000);
-    }
+    p.legacy.giftHouseAtChildAge = 25;
+    const { rows, summary } = project(p);
+    expect(summary.legacy.housesGifted).toBe(7);
+    const firstGift = rows.find((r) => r.giftedEquity > 0)!;
+    expect(firstGift.age).toBe(37 + 25);
+    expect(firstGift.events.some((e) => e.startsWith('Gave a child a house'))).toBe(true);
+    expect(summary.legacy.giftedToday).toBeGreaterThan(0);
+    const noGift = project(plan()).summary.legacy;
+    expect(noGift.housesGifted).toBe(0);
+    expect(summary.legacy.housesAtEnd).toBeLessThan(noGift.housesAtEnd);
   });
 
   it('returns null when the target cannot be met at any level', () => {

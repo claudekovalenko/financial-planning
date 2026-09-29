@@ -9,10 +9,14 @@ export interface Version {
   plan: Plan;
   facts: {
     leavePerChild: number;
+    stretchPerChild?: number;
     spendNowPerMonth: number | null;
+    /** Spending now at the stretch goal. */
+    stretchSpendNowPerMonth?: number | null;
     spendPeakPerMonth: number | null;
     currentRunsOutAge: number | null;
     savings: number;
+    houses?: number;
   };
 }
 
@@ -49,10 +53,14 @@ export function renderVersions(
   root.innerHTML = `<ul class="version-list">${versions
     .map((v) => {
       const f = v.facts;
-      const spend = f.spendNowPerMonth === null ? 'target not reachable' : `spend ${money(f.spendNowPerMonth)}/mo now, ${money(f.spendPeakPerMonth ?? 0)}/mo at the busiest`;
+      const stretch = f.stretchPerChild && f.stretchPerChild > f.leavePerChild ? ` to ${money(f.stretchPerChild)}` : '';
+      const spendNow =
+        f.stretchSpendNowPerMonth && f.spendNowPerMonth && stretch ? `${money(f.stretchSpendNowPerMonth)} to ${money(f.spendNowPerMonth)}` : money(f.spendNowPerMonth ?? 0);
+      const spend = f.spendNowPerMonth === null ? 'goal not reachable' : `spend ${spendNow}/mo now`;
+      const houses = f.houses ? ` · ${f.houses} houses to the family` : '';
       const lasts = f.currentRunsOutAge === null ? 'current spending never runs out' : `current spending runs out at ${f.currentRunsOutAge}`;
       return `<li class="${v.id === activeId ? 'active' : ''}"><div class="v-name">${esc(v.name)}</div>` +
-        `<div class="v-facts">Leave ${money(f.leavePerChild)} each · ${spend} · ${lasts} · savings ${money(f.savings)}</div>` +
+        `<div class="v-facts">Leave ${money(f.leavePerChild)}${stretch} each · ${spend} · ${lasts}${houses} · savings ${money(f.savings)}</div>` +
         `<div class="v-actions"><button type="button" data-open="${v.id}">Open</button><button type="button" data-remove="${v.id}">Delete</button></div></li>`;
     })
     .join('')}</ul>`;

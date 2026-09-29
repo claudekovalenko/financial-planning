@@ -148,8 +148,16 @@ export interface Savings {
 }
 
 export interface Legacy {
-  /** Amount to leave each child at the end of the plan, in today's dollars. */
+  /** Goal: at least this much to each child, in today's dollars (houses given during life count). */
   perChild: number;
+  /** Stretch goal per child, in today's dollars. */
+  stretchPerChild: number;
+  /** Grandchildren you expect to provide for. */
+  grandchildren: number;
+  /** Amount set aside for each grandchild before the children's shares, today's dollars. */
+  perGrandchild: number;
+  /** Give each child one rental house when the child reaches this age. null = houses pass on at the end. */
+  giftHouseAtChildAge: number | null;
 }
 
 export interface Plan {
@@ -217,6 +225,8 @@ export interface YearRow {
   purchases: number;
   /** Net cash from rentals sold this year. */
   saleProceeds: number;
+  /** Equity in rental houses given to children this year. */
+  giftedEquity: number;
   investmentReturn: number;
 
   investments: number;
@@ -266,6 +276,18 @@ export interface Summary {
     investments: number;
     homeEquity: number;
     rentalEquity: number;
+  };
+  /** Everything passed to the family, in today's dollars. */
+  legacy: {
+    /** Equity in houses given to children during life, valued when given. */
+    giftedToday: number;
+    housesGifted: number;
+    /** Rental houses plus the family home still owned at the end. */
+    housesAtEnd: number;
+    /** Set aside for grandchildren from the estate. */
+    grandchildrenTotal: number;
+    /** Per child: estate after the grandchildren's share, plus houses given during life. */
+    perChildTotalToday: number;
   };
   lifetime: {
     grossEarned: number;

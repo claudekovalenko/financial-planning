@@ -252,3 +252,6 @@ body.locked > :not(#lock-screen) { display: none !important; }
 .every-year summary::before { content: '▸ '; color: var(--text-muted); }
 .every-year[open] summary::before { content: '▾ '; }
 .every-year[open] summary { margin-bottom: 8px; }
+
+.legacy-homes { margin: 0; padding-top: 10px; border-top: 1px solid var(--grid); color: var(--text-secondary); font-size: 13px; }
+.legacy-homes b { color: var(--text-primary); }

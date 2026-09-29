@@ -217,27 +217,53 @@ export function renderStrategies(results: StrategyResult[], onUse: (id: string) 
 }
 
 export function renderLegacy(a: LegacyAnswer): void {
-  el('legacy-target').textContent = money(a.target);
+  const g = a.goal;
+  const t = a.stretch;
+  const range = (x: number | null, y: number | null) =>
+    x === null ? 'n/a' : y === null || Math.abs(x - y) < 50 ? money(x) : `${money(y)} to ${money(x)}`;
+  const grand = a.perGrandchild > 0 && a.grandchildren > 0 ? `, after ${money(a.perGrandchild)} for each of ${a.grandchildren} grandchildren` : '';
+  el('legacy-label').innerHTML =
+    g.target === t.target
+      ? `To leave each child at least <b>${money(g.target)}</b> in today's dollars${grand}`
+      : `To leave each child <b>${money(g.target)}</b> to <b>${money(t.target)}</b> in today's dollars${grand}`;
+
   const spend = el('legacy-spend');
-  if (a.share === null) {
+  if (g.share === null) {
     spend.textContent = 'Not reachable';
     spend.classList.add('bad');
-    el('legacy-spend-sub').textContent = 'Even at a bare-minimum budget the plan cannot leave that much. Try a smaller amount per child or more savings.';
+    el('legacy-spend-sub').textContent = 'Even at a bare-minimum budget the plan cannot leave that much. Try a smaller amount or more savings.';
   } else {
     spend.classList.remove('bad');
-    spend.textContent = `${money(a.spendNowPerMonth!)}/mo`;
-    el('legacy-spend-sub').textContent =
-      `today, rising to ${money(a.spendPeakPerMonth!)}/mo in the busiest family years. Includes rent or mortgage and giving.`;
+    spend.textContent = `${range(g.spendNowPerMonth, t.spendNowPerMonth)}/mo`;
+    const parts = [`today, and ${range(g.spendPeakPerMonth, t.spendPeakPerMonth)}/mo in the busiest family years.`];
+    if (g.target !== t.target) {
+      parts.push(t.share === null ? `The ${money(t.target)} stretch goal is out of reach; the figure is for ${money(g.target)}.` : `The lower figure reaches the ${money(t.target)} stretch goal.`);
+    }
+    parts.push('Includes rent or mortgage and giving.');
+    el('legacy-spend-sub').textContent = parts.join(' ');
   }
+
   const c = a.current;
   const cur = el('legacy-current');
   if (c.runsOutAge !== null) {
     cur.textContent = `Runs out at ${c.runsOutAge}`;
     cur.classList.add('bad');
-    el('legacy-current-sub').textContent = `You plan ${money(c.spendNowPerMonth)}/mo today and ${money(c.spendPeakPerMonth)}/mo at the busiest. Savings run out before the end, so nothing is left to pass on.`;
+    el('legacy-current-sub').textContent = `You plan ${money(c.spendNowPerMonth)}/mo today and ${money(c.spendPeakPerMonth)}/mo at the busiest. Savings run out before the end.`;
   } else {
     cur.classList.remove('bad');
     cur.textContent = `${money(c.perChildToday)} each`;
-    el('legacy-current-sub').textContent = `left to each child if you spend as planned: ${money(c.spendNowPerMonth)}/mo today, ${money(c.spendPeakPerMonth)}/mo at the busiest.`;
+    el('legacy-current-sub').textContent = `to each child if you spend as planned: ${money(c.spendNowPerMonth)}/mo today, ${money(c.spendPeakPerMonth)}/mo at the busiest.`;
   }
+
+  // Homes passed on, at the goal level when it is reachable.
+  const base = g.projection ?? c.projection;
+  const L = base.summary.legacy;
+  const kids = Math.max(1, base.plan.family.marriageAge === null ? 0 : base.plan.family.childrenCount);
+  const homes = L.housesGifted + L.housesAtEnd;
+  el('legacy-homes').innerHTML =
+    homes === 0
+      ? 'No houses pass to your children in this plan.'
+      : L.housesGifted > 0
+        ? `<b>${homes} houses</b> go to your family: ${L.housesGifted} given to your children as they start out, and ${L.housesAtEnd} more at your passing, including your home. That is about ${(homes / kids).toFixed(1)} per child.`
+        : `<b>${homes} houses</b> pass to your children, ${L.housesAtEnd - (base.rows.at(-1)!.homeValue > 0 ? 1 : 0)} rentals and your home. That is about ${(homes / kids).toFixed(1)} per child, each one able to house or support a family.`;
 }

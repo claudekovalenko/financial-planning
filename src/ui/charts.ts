@@ -175,18 +175,19 @@ export function createCharts(els: { netWorth: HTMLCanvasElement; income: HTMLCan
   };
 }
 
-/** One chart for the simple view: net worth at the target spending vs current spending. */
+/** One chart for the simple view: net worth on each goal's spending path vs current spending. */
 export function createLegacyChart(canvas: HTMLCanvasElement): {
-  update(target: YearRow[] | null, current: YearRow[], targetLabel: string): void;
+  update(targets: { label: string; rows: YearRow[] }[], current: YearRow[]): void;
 } {
   let chart: Chart | null = null;
-  let last: [YearRow[] | null, YearRow[], string] | null = null;
-  const build = (target: YearRow[] | null, current: YearRow[], targetLabel: string) => {
+  let last: [{ label: string; rows: YearRow[] }[], YearRow[]] | null = null;
+  const build = (targets: { label: string; rows: YearRow[] }[], current: YearRow[]) => {
     chart?.destroy();
     const labels = current.map((r) => `${r.age}`);
     const today = (rows: YearRow[]) => rows.map((r) => r.netWorth * r.deflator);
-    const datasets = [];
-    if (target) datasets.push({ ...line(targetLabel, 0, true), data: today(target) });
+    // Slots: goal = 1 (blue), stretch = 3 (aqua), current = 2 (orange); fixed per role.
+    const slots = [0, 2];
+    const datasets = targets.map((t, i) => ({ ...line(t.label, slots[i] ?? 0, i === 0), data: today(t.rows) }));
     datasets.push({ ...line('At your current spending', 1), data: today(current) });
     const opts = baseOptions(true);
     opts.scales.x.ticks = { ...opts.scales.x.ticks, callback: (_v: unknown, i: number) => `age ${labels[i]}` } as typeof opts.scales.x.ticks;
@@ -195,9 +196,9 @@ export function createLegacyChart(canvas: HTMLCanvasElement): {
   };
   window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => last && build(...last));
   return {
-    update(target, current, targetLabel) {
-      last = [target, current, targetLabel];
-      build(target, current, targetLabel);
+    update(targets, current) {
+      last = [targets, current];
+      build(targets, current);
     },
   };
 }

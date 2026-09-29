@@ -23,12 +23,20 @@ from the budgeting app through a small JSON contract.
 The app opens on one question: how much can you spend each month and still
 leave each child a chosen amount, in today's dollars, when the plan ends?
 
-- **The answer** shows the monthly spending that leaves at least that amount
-  per child, and what happens at the spending you have entered.
+- **The answer** shows the monthly spending that leaves each child between a
+  goal and a stretch amount (for example $500,000 to $1,000,000), after an
+  optional amount set aside for each grandchild, and what happens at the
+  spending you have entered.
+- **Homes** shows how many houses pass to the family. You can choose to give
+  each child one rental house at an age of your choosing, such as when they
+  start their own family; the child takes it with its remaining loan, the
+  equity counts toward their share, and the portfolio keeps buying to
+  replace it.
 - **One chart** compares what you own over your life on both paths. The end
   of each line is what passes to your children.
-- **Eight inputs**: amount per child, savings, monthly spending, rent, age,
-  marriage age, children and plan-to age. Everything else is under
+- **Two short input groups**: your legacy (goal and stretch per child,
+  grandchildren, house gifts) and your life today (savings, spending, rent,
+  age, marriage age, children, plan-to age). Everything else is under
   "Show all details".
 - **Versions**: save the current numbers, change them, save again, and
   compare. "Open" returns to a saved version. Versions are stored with the
