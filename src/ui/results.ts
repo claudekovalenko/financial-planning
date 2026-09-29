@@ -21,7 +21,14 @@ export function renderSummary(p: Projection, need: RequiredIncome, real: boolean
     ['Savings goal', ageText(s.savingsGoalReachedAge), `${money(plan.savings.goal.amount)} by ${plan.savings.goal.byAge}; needs ${money(s.requiredMonthlyForGoal)}/mo saved`],
     ['Peak spending year', `${money(real ? s.peakExpenseYear.expenses.total * s.peakExpenseYear.deflator : s.peakExpenseYear.expenses.total)}`, `${s.peakExpenseYear.year}, ${s.peakExpenseYear.childrenAtHome} children at home${real ? '' : ' (nominal)'}`],
     ['Estate per child', money(real ? s.estate.perChildToday : s.estate.perChildNominal), `${money(real ? s.estate.todayDollars : s.estate.nominal)} total in ${s.deathYear}${real ? " (today's $)" : ' (nominal)'}`],
-    ['Lifetime giving', money(s.lifetime.giving), `${pct(plan.spending.givingRate, 0)} of income, nominal`],
+    [
+      'Provision salary',
+      s.provisionSalary === null ? 'n/a' : money(s.provisionSalary),
+      s.provisionSalary === null
+        ? 'set a provision salary or a giving share above 0'
+        : `${s.provisionAuto ? 'computed' : 'entered'}; ${pct(plan.spending.surplusGivingRate, 0)} of salary above it is given`,
+    ],
+    ['Lifetime giving', money(s.lifetime.giving), `${pct(plan.spending.givingRate, 0)} floor = ${money(s.lifetime.giving - s.lifetime.givingSurplus)}, above provision = ${money(s.lifetime.givingSurplus)}`],
     ['Lifetime cost of children', money(s.lifetime.childrenCost), 'incl. launch funds, nominal'],
   ];
   el('tiles').innerHTML = tiles
@@ -45,6 +52,7 @@ const columns: [string, (r: YearRow, adj: (n: number) => number) => string][] = 
   ['Housing', (r, a) => money(a(r.expenses.housing), true)],
   ['Children', (r, a) => money(a(r.expenses.children + r.expenses.launchFund), true)],
   ['Giving', (r, a) => money(a(r.expenses.giving), true)],
+  ['of it above provision', (r, a) => money(a(r.expenses.givingSurplus), true)],
   ['Travel', (r, a) => money(a(r.expenses.travel), true)],
   ['Spending', (r, a) => money(a(r.expenses.total), true)],
   ['Cash flow', (r, a) => money(a(r.cashFlow), true)],

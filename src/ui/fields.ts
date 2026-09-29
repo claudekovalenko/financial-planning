@@ -1,5 +1,5 @@
 /** Declarative description of every editable plan input, grouped by section. */
-export type FieldKind = 'money' | 'percent' | 'int' | 'number' | 'age' | 'nullableAge' | 'bool' | 'text';
+export type FieldKind = 'money' | 'nullableMoney' | 'percent' | 'int' | 'number' | 'age' | 'nullableAge' | 'bool' | 'text';
 
 export interface Field {
   path: string;
@@ -46,13 +46,21 @@ export const sections: Section[] = [
     fields: [
       { path: 'spending.monthlyBase', label: 'Monthly spending excl. rent', kind: 'money', step: 100, help: 'Groceries, car, insurance, phone, fun. Pull this from the budgeting app.' },
       { path: 'spending.monthlyRent', label: 'Monthly rent', kind: 'money', step: 50 },
-      { path: 'spending.givingRate', label: 'Giving (share of gross income)', kind: 'percent' },
       { path: 'spending.inflation', label: 'Inflation', kind: 'percent' },
       { path: 'spending.marriedMultiplier', label: 'Household spending multiplier when married', kind: 'number', step: 0.05, help: '1.5 = a couple spends 50% more than you do alone (excluding children).' },
       { path: 'spending.retirementMultiplier', label: 'Spending multiplier in retirement', kind: 'number', step: 0.05 },
       { path: 'spending.travel.flightsPerPersonPerYear', label: 'Round-trip flights per person per year', kind: 'number', step: 0.5 },
       { path: 'spending.travel.avgTicketCost', label: 'Average round-trip ticket', kind: 'money', step: 25 },
       { path: 'spending.travel.extraTravelPerYear', label: 'Other travel per year (lodging, ministry trips)', kind: 'money', step: 250 },
+    ],
+  },
+  {
+    id: 'giving',
+    title: 'Giving',
+    fields: [
+      { path: 'spending.givingRate', label: 'Giving floor (share of gross income)', kind: 'percent', help: 'Always given, whatever the year looks like.' },
+      { path: 'spending.surplusGivingRate', label: 'Of salary above provision, give', kind: 'percent', help: '100% gives away every dollar beyond what your family needs; 0% keeps it all.' },
+      { path: 'spending.provisionSalary', label: 'Provision salary (today $)', kind: 'nullableMoney', step: 1000, help: 'What providing for the family takes. Blank = the salary the plan needs, computed for you.' },
     ],
   },
   {

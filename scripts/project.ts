@@ -56,6 +56,9 @@ console.log(`  Shortfall years (savings below zero): ${summary.shortfallYears.le
 console.log(`  Estate at ${summary.deathYear}: ${money(summary.estate.nominal)} nominal = ${money(summary.estate.todayDollars)} today's dollars`);
 console.log(`    per child: ${money(summary.estate.perChildNominal)} nominal = ${money(summary.estate.perChildToday)} today's dollars`);
 console.log(`    made of investments ${money(summary.estate.investments)}, home equity ${money(summary.estate.homeEquity)}, rental equity ${money(summary.estate.rentalEquity)}`);
+console.log(`  Giving: ${(plan.spending.givingRate * 100).toFixed(0)}% floor` +
+  (summary.provisionSalary === null ? '' : `, plus ${(plan.spending.surplusGivingRate * 100).toFixed(0)}% of salary above the ${summary.provisionAuto ? 'computed' : 'entered'} provision salary of ${money(summary.provisionSalary)}`) +
+  `; lifetime giving ${money(summary.lifetime.giving)} of which ${money(summary.lifetime.givingSurplus)} above provision`);
 console.log(`  Lifetime: earned ${money(summary.lifetime.grossEarned)}, taxes ${money(summary.lifetime.taxes)}, giving ${money(summary.lifetime.giving)}, ` +
   `children ${money(summary.lifetime.childrenCost)}, rental cash flow ${money(summary.lifetime.rentalCashFlow)}\n`);
 

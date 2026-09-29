@@ -70,13 +70,20 @@ Each year, in order:
    otherwise the purchase is delayed and noted.
 5. **Spending.** Base living costs (× a married multiplier), housing, children
    (first child cost + a marginal cost per additional child), launch funds at
-   ages 18-21, giving as a share of income, and travel priced as flights per
-   household member plus other travel. All inflate.
-6. **Savings.** Investments earn the return rate, receive the year's cash flow
+   ages 18-21, giving, and travel priced as flights per household member plus
+   other travel. All inflate.
+6. **Giving.** Two layers. The *floor* is a share of gross income (10% by
+   default) given every year no matter what. *Generosity above provision*
+   gives a chosen share of any salary earned above the **provision salary**,
+   the amount that provides for the family. Leave the provision salary blank
+   and the planner uses the salary at which the plan has no shortfall, so
+   giving the surplus away never puts the family short. Set it by hand to
+   draw the line yourself.
+7. **Savings.** Investments earn the return rate, receive the year's cash flow
    and fund purchases. A negative balance is a **shortfall** and is flagged.
-7. **Freedom tests.** Passive income = rental cash flow + safe-withdrawal rate ×
+8. **Freedom tests.** Passive income = rental cash flow + safe-withdrawal rate ×
    investments. "Financially free" is the first year that covers spending.
-8. **Estate.** Net worth in the final year, nominal and in today's dollars,
+9. **Estate.** Net worth in the final year, nominal and in today's dollars,
    divided equally among the children.
 
 Solvers then binary-search the salary at which the plan has no shortfall, at

@@ -34,6 +34,8 @@ export const defaultPlan: Plan = {
     monthlyRent: 1_000,
     inflation: 0.03,
     givingRate: 0.10,
+    surplusGivingRate: 0.5,
+    provisionSalary: null,
     marriedMultiplier: 1.5,
     retirementMultiplier: 0.85,
     travel: {

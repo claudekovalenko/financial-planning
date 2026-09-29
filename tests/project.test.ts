@@ -122,3 +122,48 @@ describe('solvers', () => {
     expect(r.freeByRetirement === null || r.freeByRetirement >= r.noShortfall!).toBe(true);
   });
 });
+
+describe('giving', () => {
+  it('always gives the floor and nothing above provision when salary equals provision', () => {
+    const plan = freshPlan();
+    plan.income.salary = 222_000;
+    const { rows, summary } = project(plan);
+    expect(summary.provisionAuto).toBe(true);
+    expect(summary.provisionSalary).toBe(222_000);
+    expect(rows[0].expenses.giving).toBeCloseTo(22_200, 6);
+    expect(summary.lifetime.givingSurplus).toBe(0);
+  });
+
+  it('gives the chosen share of salary above provision and never creates a shortfall', () => {
+    const plan = freshPlan();
+    plan.income.salary = 300_000;
+    const { rows, summary } = project(plan);
+    expect(rows[0].expenses.givingSurplus).toBeCloseTo(0.5 * (300_000 - 222_000), 6);
+    expect(rows[0].expenses.giving).toBeCloseTo(30_000 + 39_000, 6);
+    expect(summary.shortfallYears).toEqual([]);
+    expect(summary.lifetime.givingSurplus).toBeGreaterThan(0);
+    // Surplus giving stops when the salary stops.
+    expect(rows.find((r) => r.age === 67)!.expenses.givingSurplus).toBe(0);
+  });
+
+  it('respects an entered provision salary and a 100% surplus rate', () => {
+    const plan = freshPlan();
+    plan.income.salary = 150_000;
+    plan.spending.provisionSalary = 120_000;
+    plan.spending.surplusGivingRate = 1;
+    const { rows, summary } = project(plan);
+    expect(summary.provisionAuto).toBe(false);
+    expect(rows[0].expenses.givingSurplus).toBeCloseTo(30_000, 6);
+    // Year 2: both grow with raises, so the gap grows with them.
+    expect(rows[1].expenses.givingSurplus).toBeCloseTo(30_000 * 1.035, 6);
+  });
+
+  it('turns surplus giving off cleanly', () => {
+    const plan = freshPlan();
+    plan.income.salary = 300_000;
+    plan.spending.surplusGivingRate = 0;
+    const { rows, summary } = project(plan);
+    expect(summary.provisionSalary).toBeNull();
+    expect(rows.every((r) => r.expenses.givingSurplus === 0)).toBe(true);
+  });
+});

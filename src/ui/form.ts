@@ -29,7 +29,7 @@ export function renderForm(root: HTMLElement, getPlan: () => Plan, onChange: () 
       } else {
         const wrap = document.createElement('span');
         wrap.className = 'field-input';
-        if (field.kind === 'money') wrap.dataset.prefix = '$';
+        if (field.kind === 'money' || field.kind === 'nullableMoney') wrap.dataset.prefix = '$';
         if (field.kind === 'percent') wrap.dataset.suffix = '%';
         wrap.appendChild(input);
         row.appendChild(wrap);
@@ -76,8 +76,10 @@ function configure(input: HTMLInputElement, field: Field): void {
       input.min = '0';
       break;
     case 'money':
+    case 'nullableMoney':
       input.type = 'number';
       input.step = String(field.step ?? 100);
+      if (field.kind === 'nullableMoney') input.placeholder = 'auto';
       break;
     case 'age':
     case 'nullableAge':
@@ -104,7 +106,7 @@ function write(input: HTMLInputElement, field: Field, value: unknown): void {
 function read(input: HTMLInputElement, field: Field): unknown {
   if (field.kind === 'bool') return input.checked;
   if (field.kind === 'text') return input.value;
-  if (input.value.trim() === '') return field.kind === 'nullableAge' ? null : undefined;
+  if (input.value.trim() === '') return field.kind === 'nullableAge' || field.kind === 'nullableMoney' ? null : undefined;
   const n = Number(input.value);
   if (!Number.isFinite(n)) return undefined;
   if (field.kind === 'percent') return n / 100;

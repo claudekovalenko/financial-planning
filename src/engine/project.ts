@@ -22,8 +22,26 @@ interface HomeState {
   payment: number;
 }
 
-/** Run the full year-by-year projection from the current age to the death age. */
+/**
+ * Run the full year-by-year projection from the current age to the death age.
+ *
+ * Giving above provision needs a provision salary. When the plan leaves it
+ * blank, it is the salary at which the plan (with surplus giving switched
+ * off) has no shortfall, so giving the surplus away never creates one.
+ */
 export function project(plan: Plan): Projection {
+  let provision = plan.spending.provisionSalary;
+  let auto = false;
+  if (provision === null && plan.spending.surplusGivingRate > 0) {
+    const base = structuredClone(plan);
+    base.spending.surplusGivingRate = 0;
+    provision = solveSalary(base, (p) => p.summary.shortfallYears.length === 0);
+    auto = true;
+  }
+  return run(plan, provision, auto);
+}
+
+function run(plan: Plan, provision: number | null, provisionAuto: boolean): Projection {
   const { meta, income, spending, family, housing, rentals, savings } = plan;
   const years = Math.max(0, meta.deathAge - meta.currentAge);
   const birthAges = childBirthAges(plan);
@@ -128,7 +146,11 @@ export function project(plan: Plan): Projection {
       childrenAtHome > 0 ? (family.firstChildCost + (childrenAtHome - 1) * family.additionalChildCost) * infl : 0;
     const launching = childrenAges.filter((a) => a >= 18 && a <= 21).length;
     const launchFund = (launching * family.launchFundPerChild * infl) / 4;
-    const giving = spending.givingRate * (grossEarned + Math.max(0, rentalCashFlow));
+    const givingFloor = spending.givingRate * (grossEarned + Math.max(0, rentalCashFlow));
+    const provisionNow = provision !== null && !retired ? provision * Math.pow(1 + income.salaryGrowth, t) : null;
+    const givingSurplus =
+      provisionNow !== null && spending.surplusGivingRate > 0 ? Math.max(0, salary - provisionNow) * spending.surplusGivingRate : 0;
+    const giving = givingFloor + givingSurplus;
     const adults = married ? 2 : 1;
     const travel =
       ((adults + childrenAtHome) * spending.travel.flightsPerPersonPerYear * spending.travel.avgTicketCost +
@@ -140,6 +162,7 @@ export function project(plan: Plan): Projection {
       children,
       launchFund,
       giving,
+      givingSurplus,
       travel,
       total: living + housingCost + children + launchFund + giving + travel,
     };
@@ -254,10 +277,17 @@ export function project(plan: Plan): Projection {
     }
   }
 
-  return { plan, rows, summary: summarize(plan, rows, birthAges, rentalsDelayedYears) };
+  return { plan, rows, summary: summarize(plan, rows, birthAges, rentalsDelayedYears, provision, provisionAuto) };
 }
 
-function summarize(plan: Plan, rows: YearRow[], birthAges: number[], rentalsDelayedYears: number): Summary {
+function summarize(
+  plan: Plan,
+  rows: YearRow[],
+  birthAges: number[],
+  rentalsDelayedYears: number,
+  provisionSalary: number | null,
+  provisionAuto: boolean,
+): Summary {
   const last = rows[rows.length - 1];
   const { meta, savings, family } = plan;
   const yearOf = (age: number) => meta.startYear + (age - meta.currentAge);
@@ -280,6 +310,8 @@ function summarize(plan: Plan, rows: YearRow[], birthAges: number[], rentalsDela
     savingsGoalReachedAge: goalRow ? goalRow.age : null,
     requiredMonthlyForGoal:
       requiredAnnualContribution(savings.current, savings.goal.amount, savings.returnRate, savings.goal.byAge - meta.currentAge) / 12,
+    provisionSalary,
+    provisionAuto,
     peakExpenseYear: peak,
     rentalsAcquired: last.rentalsOwned,
     rentalsDelayedYears,
@@ -297,6 +329,7 @@ function summarize(plan: Plan, rows: YearRow[], birthAges: number[], rentalsDela
       grossEarned: sum((r) => r.grossEarned),
       taxes: sum((r) => r.taxes + r.rentalTaxes),
       giving: sum((r) => r.expenses.giving),
+      givingSurplus: sum((r) => r.expenses.givingSurplus),
       childrenCost: sum((r) => r.expenses.children + r.expenses.launchFund),
       rentalCashFlow: sum((r) => r.rentalCashFlow),
       expenses: sum((r) => r.expenses.total),

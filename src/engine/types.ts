@@ -42,8 +42,18 @@ export interface Spending {
   monthlyRent: number;
   /** General inflation applied to expenses (0.03 = 3%). */
   inflation: number;
-  /** Share of gross income given away (tithe, generosity). */
+  /** Giving floor: share of gross income always given (the tithe). */
   givingRate: number;
+  /**
+   * Generosity above provision: share of salary earned ABOVE the provision
+   * salary that is given away as well. 0 keeps every extra dollar; 1 gives it all.
+   */
+  surplusGivingRate: number;
+  /**
+   * The salary that provides for the family (today's dollars). null = use the
+   * salary the plan needs to run with no shortfall, computed automatically.
+   */
+  provisionSalary: number | null;
   /** Multiplier on monthlyBase once married (two adults, one household). */
   marriedMultiplier: number;
   /** Multiplier on household base spending after retirement. */
@@ -154,7 +164,10 @@ export interface YearExpenses {
   housing: number;
   children: number;
   launchFund: number;
+  /** Total giving: floor + surplus. */
   giving: number;
+  /** The part of giving that came from income above provision. */
+  givingSurplus: number;
   travel: number;
   total: number;
 }
@@ -218,6 +231,10 @@ export interface Summary {
   savingsGoalReachedAge: number | null;
   /** Monthly contribution required (today's dollars, level in real terms) to hit the goal purely from savings growth. */
   requiredMonthlyForGoal: number;
+  /** Salary treated as "providing for the family"; income above it feeds surplus giving. null when unknown. */
+  provisionSalary: number | null;
+  /** Whether provisionSalary was computed (true) or entered by hand (false). */
+  provisionAuto: boolean;
   peakExpenseYear: YearRow;
   rentalsAcquired: number;
   rentalsDelayedYears: number;
@@ -235,6 +252,7 @@ export interface Summary {
     grossEarned: number;
     taxes: number;
     giving: number;
+    givingSurplus: number;
     childrenCost: number;
     rentalCashFlow: number;
     expenses: number;
