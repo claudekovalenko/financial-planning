@@ -93,7 +93,7 @@ function start(session: Session): void {
     }
     exportStatus.textContent = shared
       ? 'Saved. To move your plan to another device, open "Load copy" there, pick this file, and enter your password.'
-      : `Saved as ${name} in your downloads. On another device, use "Load copy", pick the file, and enter your password.`;
+      : `Downloading ${name}. If no file appears, copy the text below instead. On another device, use "Load copy", pick the file, and enter your password.`;
     exportPanel.hidden = false;
   });
   $('btn-export-close').addEventListener('click', () => (exportPanel.hidden = true));
