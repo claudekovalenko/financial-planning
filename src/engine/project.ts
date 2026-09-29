@@ -35,6 +35,8 @@ export function project(plan: Plan): Projection {
   if (provision === null && plan.spending.surplusGivingRate > 0) {
     const base = structuredClone(plan);
     base.spending.surplusGivingRate = 0;
+    // Provision means the family is provided for without selling off the rentals.
+    base.rentals.sellWhenShort = false;
     provision = solveSalary(base, (p) => p.summary.shortfallYears.length === 0);
     auto = true;
   }
@@ -52,6 +54,8 @@ function run(plan: Plan, provision: number | null, provisionAuto: boolean): Proj
   const properties: Property[] = [];
   let lastRentalPurchaseAge: number | null = null;
   let rentalsDelayedYears = 0;
+  let rentalsBought = 0;
+  let rentalsSold = 0;
   let delayedLastYear = false;
   let shortfallLastYear = false;
   let freedomAnnounced = false;
@@ -178,6 +182,7 @@ function run(plan: Plan, provision: number | null, provisionAuto: boolean): Proj
     let boughtRental = false;
     if (
       rentals.enabled &&
+      rentalsSold === 0 &&
       age >= rentals.firstPurchaseAge &&
       properties.length < rentals.targetCount &&
       (lastRentalPurchaseAge === null || age - lastRentalPurchaseAge >= rentals.yearsBetweenPurchases)
@@ -200,7 +205,8 @@ function run(plan: Plan, provision: number | null, provisionAuto: boolean): Proj
         purchases += cashNeeded;
         lastRentalPurchaseAge = age;
         boughtRental = true;
-        events.push(`Rental #${properties.length} bought for ${fmt(price)} (${fmt(cashNeeded)} cash)`);
+        rentalsBought++;
+        events.push(`Rental #${rentalsBought} bought for ${fmt(price)} (${fmt(cashNeeded)} cash)`);
       } else {
         rentalsDelayedYears++;
         if (!delayedLastYear) {
@@ -210,6 +216,33 @@ function run(plan: Plan, provision: number | null, provisionAuto: boolean): Proj
       }
     }
     cashFlow -= purchases;
+
+    // ---- sell rentals to refill savings when they run low -------------
+    // Once the first sale happens the portfolio is being harvested, so no
+    // more purchases follow (see the purchase condition above).
+    let saleProceeds = 0;
+    if (rentals.sellWhenShort) {
+      const reserve = (rentals.reserveMonths / 12) * expenses.total;
+      const net = (p: Property) => {
+        const afterCosts = p.value * (1 - rentals.sellingCostRate);
+        const tax = Math.max(0, afterCosts - p.purchasePrice) * rentals.capitalGainsRate;
+        return afterCosts - p.loanBalance - tax;
+      };
+      // Sell only when savings would otherwise run out, then refill to the reserve.
+      const trigger = investments < 0;
+      while (trigger && investments < reserve && properties.length > 0) {
+        let best = 0;
+        for (let i = 1; i < properties.length; i++) if (net(properties[i]) > net(properties[best])) best = i;
+        const proceeds = net(properties[best]);
+        if (proceeds <= 0) break;
+        const sold = properties.splice(best, 1)[0];
+        investments += proceeds;
+        saleProceeds += proceeds;
+        rentalsSold++;
+        events.push(`Sold a rental for ${fmt(sold.value)} (${fmt(proceeds)} after costs, loan and tax)`);
+      }
+    }
+    cashFlow += saleProceeds;
 
     // ---- balance sheet at year end -----------------------------------
     const homeValue = home ? home.value : 0;
@@ -254,6 +287,7 @@ function run(plan: Plan, provision: number | null, provisionAuto: boolean): Proj
       expenses,
       cashFlow,
       purchases,
+      saleProceeds,
       investmentReturn,
       investments,
       homeValue,
@@ -279,7 +313,10 @@ function run(plan: Plan, provision: number | null, provisionAuto: boolean): Proj
     }
   }
 
-  return { plan, rows, summary: summarize(plan, rows, birthAges, rentalsDelayedYears, provision, provisionAuto) };
+  const summary = summarize(plan, rows, birthAges, rentalsDelayedYears, provision, provisionAuto);
+  summary.rentalsAcquired = rentalsBought;
+  summary.rentalsSold = rentalsSold;
+  return { plan, rows, summary };
 }
 
 function summarize(
@@ -316,6 +353,7 @@ function summarize(
     provisionAuto,
     peakExpenseYear: peak,
     rentalsAcquired: last.rentalsOwned,
+    rentalsSold: 0,
     rentalsDelayedYears,
     shortfallYears: rows.filter((r) => r.investments < 0).map((r) => r.year),
     estate: {
@@ -376,8 +414,13 @@ export interface RequiredIncome {
   savingsGoalOnTime: number | null;
 }
 
-/** The headline "how much do I need to earn" numbers. */
-export function requiredIncome(plan: Plan): RequiredIncome {
+/**
+ * The headline "how much do I need to earn" numbers. They describe a plan
+ * that works without being forced to sell rentals, so selling is off here.
+ */
+export function requiredIncome(input: Plan): RequiredIncome {
+  const plan = structuredClone(input);
+  plan.rentals.sellWhenShort = false;
   return {
     noShortfall: solveSalary(plan, (p) => p.summary.shortfallYears.length === 0),
     freeByRetirement: solveSalary(

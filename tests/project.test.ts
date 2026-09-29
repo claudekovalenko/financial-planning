@@ -259,3 +259,45 @@ describe('investment targets', () => {
     expect(ps[0].investmentsEarn).toBeGreaterThan(50_000);
   });
 });
+
+describe('selling rentals when savings run out', () => {
+  it('sells rentals instead of letting savings go negative, and stops buying', () => {
+    const plan = freshPlan();
+    plan.savings.current = 2_000_000;
+    plan.rentals.firstPurchaseAge = 31;
+    plan.rentals.yearsBetweenPurchases = 1;
+    const { rows, summary } = project(plan);
+    expect(summary.rentalsSold).toBeGreaterThan(0);
+    const firstSale = rows.findIndex((r) => r.saleProceeds > 0);
+    expect(firstSale).toBeGreaterThan(0);
+    expect(rows[firstSale].investments).toBeGreaterThanOrEqual(0);
+    // No purchases after the first sale.
+    expect(rows.slice(firstSale).some((r) => r.events.some((e) => e.startsWith('Rental #')))).toBe(false);
+    // Holdings only go down after that.
+    for (let i = firstSale + 1; i < rows.length; i++) expect(rows[i].rentalsOwned).toBeLessThanOrEqual(rows[i - 1].rentalsOwned);
+  });
+
+  it('keeps the old behaviour when selling is switched off', () => {
+    const plan = freshPlan();
+    plan.savings.current = 2_000_000;
+    plan.rentals.sellWhenShort = false;
+    const { rows, summary } = project(plan);
+    expect(summary.rentalsSold).toBe(0);
+    expect(rows.every((r) => r.saleProceeds === 0)).toBe(true);
+  });
+});
+
+describe('sustainable spending', () => {
+  it('finds the lifestyle share the plan can carry and it really works', async () => {
+    const { solveSustainableShare, scaleLifestyle } = await import('../src/engine/investing.ts');
+    const plan = freshPlan();
+    plan.savings.current = 2_000_000;
+    plan.rentals.enabled = false;
+    plan.spending.surplusGivingRate = 0;
+    const f = solveSustainableShare(plan)!;
+    expect(f).toBeGreaterThan(0.1);
+    expect(f).toBeLessThan(1);
+    expect(project(scaleLifestyle(plan, f)).summary.shortfallYears).toEqual([]);
+    expect(project(scaleLifestyle(plan, f + 0.03)).summary.shortfallYears.length).toBeGreaterThan(0);
+  });
+});

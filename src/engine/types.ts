@@ -124,6 +124,12 @@ export interface Rentals {
   rentGrowth: number;
   /** Months of household expenses to keep in cash before a purchase is allowed. */
   reserveMonths: number;
+  /** When savings would run out, sell rentals (largest net proceeds first) until the cash reserve is refilled. */
+  sellWhenShort: boolean;
+  /** Agent fees and closing costs on a sale, as a share of the sale price. */
+  sellingCostRate: number;
+  /** Tax on the gain when a rental is sold (capital gains plus depreciation recapture, blended). */
+  capitalGainsRate: number;
 }
 
 export interface Savings {
@@ -203,6 +209,8 @@ export interface YearRow {
   /** Net earned + rental cash flow - expenses - purchases (down payments). */
   cashFlow: number;
   purchases: number;
+  /** Net cash from rentals sold this year. */
+  saleProceeds: number;
   investmentReturn: number;
 
   investments: number;
@@ -238,7 +246,10 @@ export interface Summary {
   /** Whether provisionSalary was computed (true) or entered by hand (false). */
   provisionAuto: boolean;
   peakExpenseYear: YearRow;
+  /** Rentals bought over the whole plan. */
   rentalsAcquired: number;
+  /** Rentals sold to refill savings. */
+  rentalsSold: number;
   rentalsDelayedYears: number;
   shortfallYears: number[];
   estate: {

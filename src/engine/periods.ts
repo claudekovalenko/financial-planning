@@ -70,8 +70,10 @@ function describe(plan: Plan, block: YearRow[]): string {
   const born = block.reduce((n, r) => n + r.events.filter((e) => /^Child \d+ born/.test(e)).length, 0);
   if (born > 0) parts.push(`${born} born`);
   if (block.some((r) => r.events.some((e) => e.startsWith('Bought home')))) parts.push('buy a home');
-  const rentalsBought = last.rentalsOwned - (first.rentalsOwned - (first.events.some((e) => e.startsWith('Rental #')) ? 1 : 0));
+  const rentalsBought = block.reduce((n, r) => n + r.events.filter((e) => e.startsWith('Rental #')).length, 0);
   if (rentalsBought > 0) parts.push(`${rentalsBought} rental${rentalsBought === 1 ? '' : 's'} bought`);
+  const sold = block.reduce((n, r) => n + r.events.filter((e) => e.startsWith('Sold a rental')).length, 0);
+  if (sold > 0) parts.push(`${sold} rental${sold === 1 ? '' : 's'} sold`);
   if (block.some((r) => r.events.includes('Retired'))) parts.push('retire');
   else if (first.retired) parts.push('retired');
   if (block.some((r) => r.investments < 0)) parts.push('savings short');

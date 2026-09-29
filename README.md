@@ -87,7 +87,11 @@ Each year, in order:
 4. **Rentals.** Each owned house collects rent (less vacancy), pays operating
    costs, mortgage and tax (with 27.5-year depreciation). A new house is bought
    when it is due *and* cash after the down payment still covers the reserve;
-   otherwise the purchase is delayed and noted.
+   otherwise the purchase is delayed and noted. If savings would run out,
+   rentals are sold (largest net proceeds first, after selling costs, the
+   loan and tax on the gain) until the reserve is refilled, and no more are
+   bought after that. The salary and investment targets exclude forced sales:
+   they describe a plan that works without liquidating the portfolio.
 5. **Spending.** Base living costs (× a married multiplier), housing, children
    (first child cost + a marginal cost per additional child), launch funds at
    ages 18-21, giving, and travel priced as flights per household member plus
@@ -111,7 +115,9 @@ which passive income covers spending by retirement, and at which the savings
 goal lands on time. These are the headline numbers. Two more solvers answer
 "what do my investments need to do": the lowest yearly return on savings
 that keeps the plan from ever running short, and the savings needed today
-at the assumed return. The five-year table shows, per stretch of life, the
+at the assumed return. A third finds how much of the planned lifestyle
+spending (living, children, travel) the plan can carry with no shortfall and
+reports the resulting peak monthly spending. The five-year table shows, per stretch of life, the
 spending that investments must cover next to what they actually earn.
 
 Not modelled (on purpose, for now): progressive tax brackets, retirement

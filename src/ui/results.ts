@@ -21,7 +21,7 @@ export function renderSummary(p: Projection, need: RequiredIncome, real: boolean
   const tiles: [string, string, string][] = [
     ['Free by retirement needs', need.freeByRetirement === null ? 'n/a' : money(need.freeByRetirement), `salary for passive income to cover spending by ${plan.income.retireAge}`],
     ['Financially free', ageText(s.financialFreedomAge), 'rental cash flow + 4% of investments ≥ spending'],
-    ['Rentals alone cover spending', ageText(s.rentalFreedomAge), `${s.rentalsAcquired} of ${plan.rentals.targetCount} houses acquired`],
+    ['Rentals alone cover spending', ageText(s.rentalFreedomAge), `${s.rentalsAcquired} of ${plan.rentals.targetCount} houses bought${s.rentalsSold ? `, ${s.rentalsSold} sold` : ''}`],
     ['Savings goal', ageText(s.savingsGoalReachedAge), `${money(plan.savings.goal.amount)} by ${plan.savings.goal.byAge}; needs ${money(s.requiredMonthlyForGoal)}/mo saved`],
     ['Peak spending year', `${money(real ? s.peakExpenseYear.expenses.total * s.peakExpenseYear.deflator : s.peakExpenseYear.expenses.total)}`, `${s.peakExpenseYear.year}, ${s.peakExpenseYear.childrenAtHome} children at home${real ? '' : ' (nominal)'}`],
     ['Estate per child', money(real ? s.estate.perChildToday : s.estate.perChildNominal), `${money(real ? s.estate.todayDollars : s.estate.nominal)} total in ${s.deathYear}${real ? " (today's $)" : ' (nominal)'}`],
@@ -116,6 +116,7 @@ export function renderInvesting(t: InvestmentTargets): void {
     <div class="health-facts">
       <div class="fact ${returnOk ? '' : 'bad'}"><div class="tile-label">Return your savings need</div><div class="tile-value">${t.requiredReturn === null ? 'over 20%' : pctTxt(t.requiredReturn)}</div><div class="tile-sub">per year, to never run short. You assume ${pctTxt(t.assumedReturn)}.</div></div>
       <div class="fact ${savingsOk ? '' : 'bad'}"><div class="tile-label">Savings you need today</div><div class="tile-value">${t.requiredSavings === null ? 'over $100M' : money(t.requiredSavings)}</div><div class="tile-sub">at ${pctTxt(t.assumedReturn)}. You have ${money(t.savings)}.</div></div>
+      <div class="fact ${t.sustainableShare === 1 ? '' : 'bad'}"><div class="tile-label">Family spending they can carry</div><div class="tile-value">${t.sustainablePeakPerMonth === null ? 'n/a' : money(t.sustainablePeakPerMonth) + '/mo'}</div><div class="tile-sub">${t.sustainableShare === null ? 'not sustainable at any level' : t.sustainableShare === 1 ? `covers your plan (peak ${money(t.plannedPeakPerMonth)}/mo)` : `at the peak, vs ${money(t.plannedPeakPerMonth)}/mo planned (${Math.round(t.sustainableShare * 100)}% of lifestyle spending)`}</div></div>
       <div class="fact ${covered ? '' : 'bad'}"><div class="tile-label">Needed from investments now</div><div class="tile-value">${money(t.neededNowPerMonth)}/mo</div><div class="tile-sub">they earn ${money(t.earnNowPerMonth)}/mo at ${pctTxt(t.assumedReturn)}</div></div>
     </div>
     <p class="health-next">${verdict} The table below shows what each stretch of life needs from your investments.</p>`;
@@ -176,6 +177,7 @@ export function renderSimpleYears(rows: YearRow[]): void {
       .replace(/ for \$[\d,]+ \(\$[\d,]+ cash\)/, '')
       .replace('Bought home', 'Buy home')
       .replace(/Rental #(\d+) bought/, 'Buy rental #$1')
+      .replace(/Sold a rental for .*/, 'Sell a rental')
       .replace(/Shortfall: savings exhausted, .*/, 'Savings run out')
       .replace(/Employment income starts at .*/, 'Start earning');
   const head = '<tr><th>Year</th><th>Age</th><th>What happens</th><th>Money in</th><th>Spending</th><th>Savings</th><th>Net worth</th></tr>';

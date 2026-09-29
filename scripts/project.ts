@@ -58,7 +58,7 @@ console.log(`  Savings goal ${money(plan.savings.goal.amount)} by age ${plan.sav
   `; requires ${money(summary.requiredMonthlyForGoal)}/mo from savings alone`);
 console.log(`  Financially free (passive income >= expenses): ${summary.financialFreedomAge ? 'age ' + summary.financialFreedomAge : 'never'}` +
   `; rentals alone cover expenses: ${summary.rentalFreedomAge ? 'age ' + summary.rentalFreedomAge : 'never'}`);
-console.log(`  Rentals acquired: ${summary.rentalsAcquired} of ${plan.rentals.targetCount} (purchases delayed ${summary.rentalsDelayedYears} year(s))`);
+console.log(`  Rentals bought: ${summary.rentalsAcquired} of ${plan.rentals.targetCount}, sold ${summary.rentalsSold} (purchases delayed ${summary.rentalsDelayedYears} year(s))`);
 console.log(`  Peak spending year: ${summary.peakExpenseYear.year} at ${money(summary.peakExpenseYear.expenses.total)}/yr nominal ` +
   `(${money(summary.peakExpenseYear.expenses.total * summary.peakExpenseYear.deflator)} today's dollars), ${summary.peakExpenseYear.childrenAtHome} children at home`);
 console.log(`  Shortfall years (savings below zero): ${summary.shortfallYears.length ? summary.shortfallYears.join(', ') : 'none'}`);

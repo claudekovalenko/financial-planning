@@ -134,7 +134,10 @@ export const sections: Section[] = [
       { path: 'rentals.operatingExpenseRate', label: 'Operating costs (% of rent)', kind: 'percent', help: 'Taxes, insurance, repairs, management.' },
       { path: 'rentals.appreciation', label: 'Appreciation', kind: 'percent' },
       { path: 'rentals.rentGrowth', label: 'Rent growth', kind: 'percent' },
-      { path: 'rentals.reserveMonths', label: 'Cash reserve before buying (months of expenses)', kind: 'number', step: 1 },
+      { path: 'rentals.reserveMonths', label: 'Cash reserve to keep (months of expenses)', kind: 'number', step: 1 },
+      { path: 'rentals.sellWhenShort', label: 'Sell rentals when savings run low', kind: 'bool' },
+      { path: 'rentals.sellingCostRate', label: 'Cost to sell (agent + closing)', kind: 'percent' },
+      { path: 'rentals.capitalGainsRate', label: 'Tax on the gain when sold', kind: 'percent' },
     ],
   },
   {
