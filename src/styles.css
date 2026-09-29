@@ -138,3 +138,7 @@ tr.event td:first-child { font-weight: 600; }
 .export-panel .primary { margin-top: 0; }
 
 [hidden] { display: none !important; }
+
+.install-banner { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; padding: 10px 16px; background: var(--event-bg); border-bottom: 1px solid var(--border); font-size: 13px; }
+.install-banner .primary { margin-top: 0; }
+.install-banner span { flex: 1; min-width: 200px; }

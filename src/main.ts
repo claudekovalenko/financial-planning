@@ -3,6 +3,7 @@ import { renderForm } from './ui/form.ts';
 import { createCharts } from './ui/charts.ts';
 import { planLabel, renderSummary, renderTable } from './ui/results.ts';
 import { renderBudgetPanel } from './ui/budget-panel.ts';
+import { setupInstall } from './ui/install.ts';
 
 const PLAN_KEY = 'financial-planning.plan';
 const REAL_KEY = 'financial-planning.real';
@@ -26,6 +27,7 @@ renderBudgetPanel(
     plan = next;
     form.refresh();
     recompute();
+setupInstall();
   },
 );
 
@@ -35,6 +37,7 @@ realToggle.addEventListener('change', () => {
   real = realToggle.checked;
   save(REAL_KEY, String(real));
   recompute();
+setupInstall();
 });
 
 const exportPanel = $('export-panel');
@@ -70,6 +73,7 @@ $<HTMLInputElement>('plan-file').addEventListener('change', async (ev) => {
     plan = withDefaults(JSON.parse(await file.text()));
     form.refresh();
     recompute();
+setupInstall();
   } catch (e) {
     alert(`Could not import plan: ${(e as Error).message}`);
   }
@@ -91,6 +95,7 @@ $('btn-reset').addEventListener('click', () => {
   plan = freshPlan();
   form.refresh();
   recompute();
+setupInstall();
 });
 
 let timer: number | undefined;
@@ -138,3 +143,4 @@ function save(key: string, value: string) {
 }
 
 recompute();
+setupInstall();
