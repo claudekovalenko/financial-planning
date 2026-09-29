@@ -10,7 +10,7 @@
  */
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { dirname } from 'node:path';
-import { project, withDefaults, freshPlan, requiredIncome, health } from '../src/engine/index.ts';
+import { project, withDefaults, freshPlan, requiredIncome, health, investmentTargets } from '../src/engine/index.ts';
 import type { YearRow } from '../src/engine/index.ts';
 
 const args = process.argv.slice(2);
@@ -44,6 +44,10 @@ console.log('TODAY');
 console.log(`  Income/mo: employment ${money(h.income.employment)}, business ${money(h.income.business)}, investments ${money(h.income.investments)}, rentals ${money(h.income.rental)} = ${money(h.income.total)} before tax`);
 console.log(`  Spending/mo: ${money(h.spending.total)} (living ${money(h.spending.living)}, housing ${money(h.spending.housing)}, giving ${money(h.spending.giving)}, travel ${money(h.spending.travel)})`);
 console.log(`  ${h.gapPerMonth < 0 ? 'Drawing down' : 'Saving'} ${money(Math.abs(h.gapPerMonth))}/mo; savings ${money(h.savings)}; runway ${h.runwayYears === null ? 'clear' : h.runwayYears + ' years'}; income to develop ${money(h.incomeToDevelopPerMonth)}/mo\n`);
+const it = investmentTargets({ plan, rows, summary });
+console.log(`  Investments: need ${it.requiredReturn === null ? 'over 20%' : (it.requiredReturn * 100).toFixed(1) + '%'} a year (assumed ${(it.assumedReturn * 100).toFixed(1)}%); ` +
+  `savings needed today ${it.requiredSavings === null ? 'over $100M' : money(it.requiredSavings)} (have ${money(it.savings)}); ` +
+  `needed from investments now ${money(it.neededNowPerMonth)}/mo, they earn ${money(it.earnNowPerMonth)}/mo\n`);
 console.log('SUMMARY');
 console.log(`  Planned employment income ${money(plan.income.salary)}${plan.income.salaryStartAge > plan.meta.currentAge ? ' from age ' + plan.income.salaryStartAge : ''}. Salary needed so savings never go negative: ${need.noShortfall === null ? 'n/a' : money(need.noShortfall)}; ` +
   `to be financially free by ${plan.income.retireAge}: ${need.freeByRetirement === null ? 'n/a' : money(need.freeByRetirement)}; ` +

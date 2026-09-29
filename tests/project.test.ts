@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { childBirthAges, project, requiredIncome, solveSalary } from '../src/engine/project.ts';
+import { periods } from '../src/engine/periods.ts';
 import { freshPlan } from '../src/engine/defaults.ts';
 
 describe('childBirthAges', () => {
@@ -218,5 +219,43 @@ describe('starting without earned income', () => {
     expect(h.simpleRunwayYears).toBeGreaterThan(0);
     expect(h.incomeToDevelopPerMonth).toBeCloseTo(-h.gapPerMonth / 0.78, 6);
     expect(h.runwayYears).not.toBeNull();
+  });
+});
+
+describe('investment targets', () => {
+  it('finds the return and the savings at which the plan just works', async () => {
+    const { solveReturn, solveSavings, investmentTargets } = await import('../src/engine/investing.ts');
+    const plan = freshPlan();
+    plan.savings.current = 3_000_000;
+    plan.rentals.enabled = false;
+    plan.spending.surplusGivingRate = 0;
+
+    const r = solveReturn(plan)!;
+    expect(r).toBeGreaterThan(0);
+    expect(r).toBeLessThan(0.2);
+    const ok = structuredClone(plan);
+    ok.savings.returnRate = r;
+    expect(project(ok).summary.shortfallYears).toEqual([]);
+    ok.savings.returnRate = r - 0.005;
+    expect(project(ok).summary.shortfallYears.length).toBeGreaterThan(0);
+
+    const s = solveSavings(plan)!;
+    const ok2 = structuredClone(plan);
+    ok2.savings.current = s;
+    expect(project(ok2).summary.shortfallYears).toEqual([]);
+    ok2.savings.current = s - 50_000;
+    expect(project(ok2).summary.shortfallYears.length).toBeGreaterThan(0);
+
+    const t = investmentTargets(project(plan));
+    expect(t.earnNowPerMonth).toBeCloseTo((3_000_000 * 0.065) / 12, 6);
+    expect(t.requiredReturn).toBe(r);
+  });
+
+  it('periods report what investments must cover and what they earn', () => {
+    const plan = freshPlan();
+    plan.savings.current = 1_000_000;
+    const ps = periods(project(plan));
+    expect(ps[0].neededFromInvestments).toBeGreaterThan(0);
+    expect(ps[0].investmentsEarn).toBeGreaterThan(50_000);
   });
 });

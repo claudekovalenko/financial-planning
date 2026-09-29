@@ -16,6 +16,10 @@ export interface Period {
   incomeToCover: number;
   /** Average gross earned income the plan assumes for these years, today's dollars. */
   plannedIncome: number;
+  /** Spending not covered by take-home pay and rental cash flow, per year, today's dollars. */
+  neededFromInvestments: number;
+  /** What the savings actually earn per year in the plan, today's dollars. */
+  investmentsEarn: number;
   retired: boolean;
 }
 
@@ -40,6 +44,8 @@ export function periods(p: Projection, blockYears = 5): Period[] {
       rentalCashFlow: rental,
       incomeToCover: Math.max(0, spending - rental) / (1 - plan.income.effectiveTaxRate),
       plannedIncome: avg((r) => r.grossEarned),
+      neededFromInvestments: avg((r) => Math.max(0, r.expenses.total - r.netEarned - r.rentalCashFlow)),
+      investmentsEarn: avg((r) => r.investmentReturn),
       retired: block.every((r) => r.retired),
     });
   }

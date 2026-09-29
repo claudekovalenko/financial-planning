@@ -1,4 +1,4 @@
-import type { Health, Period, Plan, Projection, RequiredIncome, YearRow } from '../engine/index.ts';
+import type { Health, InvestmentTargets, Period, Plan, Projection, RequiredIncome, YearRow } from '../engine/index.ts';
 import { money, pct } from './format.ts';
 
 const el = (id: string) => document.getElementById(id)!;
@@ -88,16 +88,37 @@ function esc(s: string): string {
 }
 
 export function renderPeriods(ps: Period[]): void {
-  const head = '<tr><th>Ages</th><th>Life</th><th>Spending / mo</th><th>Income to cover it</th><th>Planned income</th></tr>';
+  const head = '<tr><th>Ages</th><th>Life</th><th>Spending / mo</th><th>Needed from investments / yr</th><th>Investments earn / yr</th><th>Planned pay / yr</th></tr>';
   const body = ps
     .map((p) => {
-      const gap = p.plannedIncome < p.incomeToCover && !p.retired;
+      const short = p.investmentsEarn + 1 < p.neededFromInvestments;
       return `<tr><td class="ages">${p.fromAge}–${p.toAge} <span class="muted">(${p.fromYear}–${p.toYear})</span></td><td class="life">${esc(p.life)}</td>` +
-        `<td data-label="Spending / mo">${money(p.monthlySpending)}</td><td data-label="Income to cover it">${money(p.incomeToCover)}</td>` +
-        `<td data-label="Planned income" class="${gap ? 'short' : ''}">${money(p.plannedIncome)}${p.retired ? ' <span class="muted">retired</span>' : ''}</td></tr>`;
+        `<td data-label="Spending / mo">${money(p.monthlySpending)}</td>` +
+        `<td data-label="Needed from investments / yr">${money(p.neededFromInvestments)}</td>` +
+        `<td data-label="Investments earn / yr" class="${short ? 'short' : ''}">${money(p.investmentsEarn)}</td>` +
+        `<td data-label="Planned pay / yr">${money(p.plannedIncome)}${p.retired ? ' <span class="muted">retired</span>' : ''}</td></tr>`;
     })
     .join('');
   el('periods').innerHTML = `<table><thead>${head}</thead><tbody>${body}</tbody></table>`;
+}
+
+export function renderInvesting(t: InvestmentTargets): void {
+  const pctTxt = (r: number) => `${(r * 100).toFixed(1)}%`;
+  const returnOk = t.requiredReturn !== null && t.requiredReturn <= t.assumedReturn;
+  const savingsOk = t.requiredSavings !== null && t.requiredSavings <= t.savings;
+  const covered = t.earnNowPerMonth >= t.neededNowPerMonth;
+  const verdict = returnOk
+    ? `At ${pctTxt(t.assumedReturn)} your savings carry the whole plan. You have room for about ${pctTxt(t.assumedReturn - (t.requiredReturn ?? 0))} a year of lower returns before it runs short.`
+    : t.requiredReturn === null
+      ? 'No realistic return makes this plan work on savings alone. It needs more income, more savings, or lower spending.'
+      : `Your savings need to earn ${pctTxt(t.requiredReturn)} a year, and you assume ${pctTxt(t.assumedReturn)}. Close the gap with more savings, more income, or lower spending.`;
+  el('investing').innerHTML = `
+    <div class="health-facts">
+      <div class="fact ${returnOk ? '' : 'bad'}"><div class="tile-label">Return your savings need</div><div class="tile-value">${t.requiredReturn === null ? 'over 20%' : pctTxt(t.requiredReturn)}</div><div class="tile-sub">per year, to never run short. You assume ${pctTxt(t.assumedReturn)}.</div></div>
+      <div class="fact ${savingsOk ? '' : 'bad'}"><div class="tile-label">Savings you need today</div><div class="tile-value">${t.requiredSavings === null ? 'over $100M' : money(t.requiredSavings)}</div><div class="tile-sub">at ${pctTxt(t.assumedReturn)}. You have ${money(t.savings)}.</div></div>
+      <div class="fact ${covered ? '' : 'bad'}"><div class="tile-label">Needed from investments now</div><div class="tile-value">${money(t.neededNowPerMonth)}/mo</div><div class="tile-sub">they earn ${money(t.earnNowPerMonth)}/mo at ${pctTxt(t.assumedReturn)}</div></div>
+    </div>
+    <p class="health-next">${verdict} The table below shows what each stretch of life needs from your investments.</p>`;
 }
 
 export function renderHealth(h: Health, plan: Plan): void {

@@ -5,3 +5,4 @@ export * from './project.ts';
 export * from './budget.ts';
 export * from './periods.ts';
 export * from './health.ts';
+export * from './investing.ts';

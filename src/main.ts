@@ -1,7 +1,7 @@
-import { freshPlan, health, periods, project, requiredIncome, withDefaults, type Plan } from './engine/index.ts';
+import { freshPlan, health, investmentTargets, periods, project, requiredIncome, withDefaults, type Plan } from './engine/index.ts';
 import { renderForm } from './ui/form.ts';
 import { createCharts } from './ui/charts.ts';
-import { planLabel, renderHealth, renderPeriods, renderSimpleYears, renderSummary, renderTable } from './ui/results.ts';
+import { planLabel, renderHealth, renderInvesting, renderPeriods, renderSimpleYears, renderSummary, renderTable } from './ui/results.ts';
 import { renderBudgetPanel } from './ui/budget-panel.ts';
 import { setupInstall } from './ui/install.ts';
 import { lockNow, unlock, type Session } from './ui/lock.ts';
@@ -193,6 +193,7 @@ function start(session: Session): void {
       const p = project(plan);
       const need = requiredIncome(plan);
       renderHealth(health(p), plan);
+      renderInvesting(investmentTargets(p));
       renderSummary(p, need, real);
       renderSimpleYears(p.rows);
       renderPeriods(periods(p));

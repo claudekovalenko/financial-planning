@@ -149,7 +149,8 @@ body[data-mode='simple'] .layout { grid-template-columns: 1fr; max-width: 760px;
 body[data-mode='simple'] .sidebar { order: 2; }
 body[data-mode='simple'] .content { order: 1; }
 body[data-mode='simple'] .hero-value { font-size: 44px; }
-.periods { overflow: visible; max-height: none; }
+.periods { overflow-x: auto; max-height: none; }
+.periods th { white-space: normal; vertical-align: bottom; }
 .periods table td.life { text-align: left; white-space: normal; min-width: 160px; }
 .periods table td.ages { text-align: left; white-space: nowrap; font-weight: 600; }
 .periods th:nth-child(1), .periods th:nth-child(2) { text-align: left; }
