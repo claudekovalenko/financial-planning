@@ -167,3 +167,21 @@ describe('giving', () => {
     expect(rows.every((r) => r.expenses.givingSurplus === 0)).toBe(true);
   });
 });
+
+describe('periods', () => {
+  it('splits the projection into five-year blocks with today-dollar figures', async () => {
+    const { periods } = await import('../src/engine/periods.ts');
+    const plan = freshPlan();
+    const p = project(plan);
+    const ps = periods(p);
+    expect(ps).toHaveLength(11);
+    expect(ps[0]).toMatchObject({ fromAge: 31, toAge: 35, fromYear: 2026, toYear: 2030, retired: false });
+    expect(ps[0].life).toContain('single');
+    expect(ps[1].life).toContain('get married');
+    expect(ps.at(-1)!.retired).toBe(true);
+    // First block: about $80k spending on $100k gross with no rentals.
+    expect(ps[0].incomeToCover).toBeGreaterThan(100_000);
+    expect(ps[0].incomeToCover).toBeLessThan(115_000);
+    expect(ps[0].plannedIncome).toBeCloseTo(p.rows.slice(0, 5).reduce((s, r) => s + r.grossEarned * r.deflator, 0) / 5, 6);
+  });
+});

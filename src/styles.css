@@ -142,3 +142,24 @@ tr.event td:first-child { font-weight: 600; }
 .install-banner { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; padding: 10px 16px; background: var(--event-bg); border-bottom: 1px solid var(--border); font-size: 13px; }
 .install-banner .primary { margin-top: 0; }
 .install-banner span { flex: 1; min-width: 200px; }
+
+body[data-mode='simple'] .full-only { display: none !important; }
+body[data-mode='full'] .essentials { display: none !important; }
+body[data-mode='simple'] .layout { grid-template-columns: 1fr; max-width: 760px; }
+body[data-mode='simple'] .sidebar { order: 2; }
+body[data-mode='simple'] .content { order: 1; }
+body[data-mode='simple'] .hero-value { font-size: 44px; }
+.periods { overflow: visible; max-height: none; }
+.periods table td.life { text-align: left; white-space: normal; min-width: 160px; }
+.periods table td.ages { text-align: left; white-space: nowrap; font-weight: 600; }
+.periods th:nth-child(1), .periods th:nth-child(2) { text-align: left; }
+.periods td.short { color: var(--danger); }
+@media (max-width: 640px) {
+  .periods thead { display: none; }
+  .periods table, .periods tbody, .periods tr, .periods td { display: block; width: 100%; text-align: left; white-space: normal; }
+  .periods tr { padding: 8px 0; border-bottom: 1px solid var(--grid); }
+  .periods td { border: none; padding: 2px 8px; }
+  .periods td.life { color: var(--text-secondary); min-width: 0; }
+  .periods td[data-label] { display: flex; justify-content: space-between; gap: 12px; }
+  .periods td[data-label]::before { content: attr(data-label); color: var(--text-muted); }
+}

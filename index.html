@@ -20,7 +20,8 @@
         <div id="plan-label" class="muted"></div>
       </div>
       <div class="actions">
-        <label class="toggle"><input id="real-toggle" type="checkbox" /> Show today's dollars</label>
+        <button id="btn-mode" type="button">Show all details</button>
+        <label class="toggle full-only"><input id="real-toggle" type="checkbox" /> Show today's dollars</label>
         <button id="btn-export" type="button">Export plan</button>
         <label class="file-btn">Import plan<input id="plan-file" type="file" accept="application/json" hidden /></label>
         <button id="btn-reset" type="button">Reset to baseline</button>
@@ -48,14 +49,20 @@
           <p id="hero-sub" class="hero-sub"></p>
         </section>
 
-        <section id="tiles" class="tiles"></section>
-
         <section class="card">
+          <h2>What each stretch of life takes</h2>
+          <p class="muted">Today's dollars. "Income to cover it" is the gross pay that pays that period's bills after rental cash flow, with nothing left to save. The salary above also funds the savings, the down payments and retirement.</p>
+          <div id="periods" class="table-wrap periods"></div>
+        </section>
+
+        <section id="tiles" class="tiles full-only"></section>
+
+        <section class="card full-only">
           <h2>Pull actuals from the budgeting app</h2>
           <div id="budget-panel"></div>
         </section>
 
-        <section class="charts">
+        <section class="charts full-only">
           <div class="card chart-card">
             <h2>Net worth</h2>
             <div class="chart"><canvas id="chart-networth"></canvas></div>
@@ -74,12 +81,12 @@
           </div>
         </section>
 
-        <section class="card">
+        <section class="card full-only">
           <h2>Timeline</h2>
           <ul id="timeline" class="timeline"></ul>
         </section>
 
-        <section class="card">
+        <section class="card full-only">
           <h2>Year by year</h2>
           <p class="muted">Rows shaded red are years savings are below zero. Hover a row to see its events.</p>
           <div id="table" class="table-wrap"></div>

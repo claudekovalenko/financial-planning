@@ -4,12 +4,12 @@ import { getPath, sections, setPath, type Field } from './fields.ts';
 /** Build the input sidebar. `onChange` fires after every valid edit. */
 export function renderForm(root: HTMLElement, getPlan: () => Plan, onChange: () => void): { refresh: () => void } {
   root.innerHTML = '';
-  const inputs = new Map<string, HTMLInputElement>();
+  const inputs: [Field, HTMLInputElement][] = [];
 
   for (const section of sections) {
     const details = document.createElement('details');
-    details.className = 'section';
-    details.open = section.id === 'income' || section.id === 'spending';
+    details.className = section.essentials ? 'section essentials' : 'section full-only';
+    details.open = section.essentials === true || section.id === 'income' || section.id === 'spending';
     const summary = document.createElement('summary');
     summary.textContent = section.title;
     details.appendChild(summary);
@@ -43,20 +43,17 @@ export function renderForm(root: HTMLElement, getPlan: () => Plan, onChange: () 
         const v = read(input, field);
         if (v === undefined) return;
         setPath(getPlan(), field.path, v);
+        for (const [f, other] of inputs) if (f.path === field.path && other !== input) write(other, f, v);
         onChange();
       });
-      inputs.set(field.path, input);
+      inputs.push([field, input]);
       details.appendChild(row);
     }
     root.appendChild(details);
   }
 
   const refresh = () => {
-    for (const section of sections) {
-      for (const field of section.fields) {
-        write(inputs.get(field.path)!, field, getPath(getPlan(), field.path));
-      }
-    }
+    for (const [field, input] of inputs) write(input, field, getPath(getPlan(), field.path));
   };
   refresh();
   return { refresh };

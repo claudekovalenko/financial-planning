@@ -13,9 +13,30 @@ export interface Section {
   id: string;
   title: string;
   fields: Field[];
+  /** Shown in the simple view instead of the full sections. */
+  essentials?: boolean;
 }
 
 export const sections: Section[] = [
+  {
+    id: 'essentials',
+    title: 'The essentials',
+    essentials: true,
+    fields: [
+      { path: 'meta.currentAge', label: 'Your age', kind: 'age' },
+      { path: 'income.salary', label: 'What you earn now (gross, per year)', kind: 'money', step: 1000 },
+      { path: 'spending.monthlyBase', label: 'What you spend per month, excluding rent', kind: 'money', step: 100 },
+      { path: 'spending.monthlyRent', label: 'Rent per month', kind: 'money', step: 50 },
+      { path: 'savings.current', label: 'Savings today', kind: 'money', step: 500 },
+      { path: 'family.marriageAge', label: 'Marry at age', kind: 'nullableAge', help: 'Blank for never.' },
+      { path: 'family.childrenCount', label: 'Children', kind: 'int' },
+      { path: 'housing.homePrice', label: 'Home you would buy (today $)', kind: 'money', step: 5000 },
+      { path: 'rentals.targetCount', label: 'Rental houses to own', kind: 'int', help: '0 for none.' },
+      { path: 'spending.givingRate', label: 'Giving floor', kind: 'percent' },
+      { path: 'spending.surplusGivingRate', label: 'Of salary above provision, give', kind: 'percent' },
+      { path: 'meta.deathAge', label: 'Plan to age', kind: 'age' },
+    ],
+  },
   {
     id: 'you',
     title: 'You',

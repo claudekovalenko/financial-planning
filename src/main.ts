@@ -1,15 +1,17 @@
-import { freshPlan, project, requiredIncome, withDefaults, type Plan } from './engine/index.ts';
+import { freshPlan, periods, project, requiredIncome, withDefaults, type Plan } from './engine/index.ts';
 import { renderForm } from './ui/form.ts';
 import { createCharts } from './ui/charts.ts';
-import { planLabel, renderSummary, renderTable } from './ui/results.ts';
+import { planLabel, renderPeriods, renderSummary, renderTable } from './ui/results.ts';
 import { renderBudgetPanel } from './ui/budget-panel.ts';
 import { setupInstall } from './ui/install.ts';
 
 const PLAN_KEY = 'financial-planning.plan';
 const REAL_KEY = 'financial-planning.real';
+const MODE_KEY = 'financial-planning.mode';
 
 let plan: Plan = loadPlan();
 let real = loadFlag(REAL_KEY);
+let mode: 'simple' | 'full' = loadMode();
 
 const $ = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
 const charts = createCharts({
@@ -19,6 +21,7 @@ const charts = createCharts({
   spending: $('chart-spending'),
 });
 
+applyMode();
 const form = renderForm($('form'), () => plan, schedule);
 renderBudgetPanel(
   $('budget-panel'),
@@ -30,6 +33,24 @@ renderBudgetPanel(
 setupInstall();
   },
 );
+
+$('btn-mode').addEventListener('click', () => {
+  mode = mode === 'simple' ? 'full' : 'simple';
+  save(MODE_KEY, mode);
+  applyMode();
+  recompute();
+});
+function applyMode() {
+  document.body.dataset.mode = mode;
+  $('btn-mode').textContent = mode === 'simple' ? 'Show all details' : 'Back to the simple view';
+}
+function loadMode(): 'simple' | 'full' {
+  try {
+    return localStorage.getItem(MODE_KEY) === 'full' ? 'full' : 'simple';
+  } catch {
+    return 'simple';
+  }
+}
 
 const realToggle = $<HTMLInputElement>('real-toggle');
 realToggle.checked = real;
@@ -109,8 +130,11 @@ function recompute() {
     const p = project(plan);
     const need = requiredIncome(plan);
     renderSummary(p, need, real);
-    charts.update(p.rows, real);
-    renderTable(p.rows, real);
+    renderPeriods(periods(p));
+    if (mode === 'full') {
+      charts.update(p.rows, real);
+      renderTable(p.rows, real);
+    }
     $('plan-label').textContent = planLabel(plan);
     save(PLAN_KEY, JSON.stringify(plan));
   } catch (e) {

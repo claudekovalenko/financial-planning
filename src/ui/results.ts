@@ -1,4 +1,4 @@
-import type { Plan, Projection, RequiredIncome, YearRow } from '../engine/index.ts';
+import type { Period, Plan, Projection, RequiredIncome, YearRow } from '../engine/index.ts';
 import { money, pct } from './format.ts';
 
 const el = (id: string) => document.getElementById(id)!;
@@ -81,4 +81,17 @@ export function planLabel(plan: Plan): string {
 
 function esc(s: string): string {
   return s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]!);
+}
+
+export function renderPeriods(ps: Period[]): void {
+  const head = '<tr><th>Ages</th><th>Life</th><th>Spending / mo</th><th>Income to cover it</th><th>Planned income</th></tr>';
+  const body = ps
+    .map((p) => {
+      const gap = p.plannedIncome < p.incomeToCover && !p.retired;
+      return `<tr><td class="ages">${p.fromAge}–${p.toAge} <span class="muted">(${p.fromYear}–${p.toYear})</span></td><td class="life">${esc(p.life)}</td>` +
+        `<td data-label="Spending / mo">${money(p.monthlySpending)}</td><td data-label="Income to cover it">${money(p.incomeToCover)}</td>` +
+        `<td data-label="Planned income" class="${gap ? 'short' : ''}">${money(p.plannedIncome)}${p.retired ? ' <span class="muted">retired</span>' : ''}</td></tr>`;
+    })
+    .join('');
+  el('periods').innerHTML = `<table><thead>${head}</thead><tbody>${body}</tbody></table>`;
 }
