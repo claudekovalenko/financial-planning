@@ -1,0 +1,25 @@
+{
+  "name": "financial-planning",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Lifetime financial planner: income, family, rental portfolio, savings goals and legacy, projected year by year.",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "project": "node --experimental-strip-types scripts/project.ts",
+    "import-budget": "node --experimental-strip-types scripts/import-budget.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.3",
+    "typescript": "^5.9.0",
+    "vite": "^8.0.0",
+    "vitest": "latest"
+  },
+  "dependencies": {
+    "chart.js": "^4.5.0"
+  }
+}

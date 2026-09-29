@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Lifetime Financial Planner</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 rx=%276%27 fill=%27%232a78d6%27/%3E%3Cpath d=%27M6 24l6-8 5 4 9-12%27 stroke=%27white%27 stroke-width=%273%27 fill=%27none%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27/%3E%3C/svg%3E" />
+    <link rel="stylesheet" href="./src/styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div>
+        <h1>Lifetime Financial Planner</h1>
+        <div id="plan-label" class="muted"></div>
+      </div>
+      <div class="actions">
+        <label class="toggle"><input id="real-toggle" type="checkbox" /> Show today's dollars</label>
+        <button id="btn-export" type="button">Export plan</button>
+        <label class="file-btn">Import plan<input id="plan-file" type="file" accept="application/json" hidden /></label>
+        <button id="btn-reset" type="button">Reset to baseline</button>
+      </div>
+    </header>
+
+    <div class="layout">
+      <aside class="sidebar">
+        <div id="form"></div>
+      </aside>
+
+      <main class="content">
+        <section class="hero">
+          <div class="hero-label">Salary this life needs (today's dollars, before tax)</div>
+          <div id="hero-value" class="hero-value">–</div>
+          <p id="hero-sub" class="hero-sub"></p>
+        </section>
+
+        <section id="tiles" class="tiles"></section>
+
+        <section class="card">
+          <h2>Pull actuals from the budgeting app</h2>
+          <div id="budget-panel"></div>
+        </section>
+
+        <section class="charts">
+          <div class="card chart-card">
+            <h2>Net worth</h2>
+            <div class="chart"><canvas id="chart-networth"></canvas></div>
+          </div>
+          <div class="card chart-card">
+            <h2>Income vs spending</h2>
+            <div class="chart"><canvas id="chart-income"></canvas></div>
+          </div>
+          <div class="card chart-card">
+            <h2>Annual cash flow after purchases</h2>
+            <div class="chart"><canvas id="chart-cashflow"></canvas></div>
+          </div>
+          <div class="card chart-card">
+            <h2>Where the money goes</h2>
+            <div class="chart"><canvas id="chart-spending"></canvas></div>
+          </div>
+        </section>
+
+        <section class="card">
+          <h2>Timeline</h2>
+          <ul id="timeline" class="timeline"></ul>
+        </section>
+
+        <section class="card">
+          <h2>Year by year</h2>
+          <p class="muted">Rows shaded red are years savings are below zero. Hover a row to see its events.</p>
+          <div id="table" class="table-wrap"></div>
+        </section>
+      </main>
+    </div>
+    <script type="module" src="./src/main.ts"></script>
+  </body>
+</html>

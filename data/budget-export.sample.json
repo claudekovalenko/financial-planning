@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "currency": "USD",
+  "generatedAt": "2026-09-01T00:00:00Z",
+  "categoryMap": {
+    "housing": ["Rent"],
+    "giving": ["Giving"],
+    "travel": ["Travel"]
+  },
+  "months": [
+    { "month": "2026-03", "income": { "gross": 8333, "net": 6500 }, "expenses": { "Rent": 1000, "Groceries": 650, "Dining": 400, "Car": 550, "Insurance": 250, "Phone": 80, "Giving": 830, "Travel": 450, "Fun": 300, "Other": 900 }, "savingsBalance": 24500 },
+    { "month": "2026-04", "income": { "gross": 8333, "net": 6500 }, "expenses": { "Rent": 1000, "Groceries": 700, "Dining": 350, "Car": 550, "Insurance": 250, "Phone": 80, "Giving": 830, "Travel": 0, "Fun": 250, "Other": 1200 }, "savingsBalance": 25800 },
+    { "month": "2026-05", "income": { "gross": 8333, "net": 6500 }, "expenses": { "Rent": 1000, "Groceries": 680, "Dining": 420, "Car": 550, "Insurance": 250, "Phone": 80, "Giving": 830, "Travel": 900, "Fun": 300, "Other": 700 }, "savingsBalance": 26600 },
+    { "month": "2026-06", "income": { "gross": 8333, "net": 6500 }, "expenses": { "Rent": 1000, "Groceries": 720, "Dining": 380, "Car": 550, "Insurance": 250, "Phone": 80, "Giving": 830, "Travel": 300, "Fun": 350, "Other": 800 }, "savingsBalance": 27900 },
+    { "month": "2026-07", "income": { "gross": 8333, "net": 6500 }, "expenses": { "Rent": 1000, "Groceries": 690, "Dining": 410, "Car": 550, "Insurance": 250, "Phone": 80, "Giving": 830, "Travel": 1200, "Fun": 300, "Other": 600 }, "savingsBalance": 28700 },
+    { "month": "2026-08", "income": { "gross": 8333, "net": 6500 }, "expenses": { "Rent": 1000, "Groceries": 710, "Dining": 390, "Car": 550, "Insurance": 250, "Phone": 80, "Giving": 830, "Travel": 0, "Fun": 300, "Other": 950 }, "savingsBalance": 30000 }
+  ]
+}
