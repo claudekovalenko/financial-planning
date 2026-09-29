@@ -34,8 +34,23 @@ npm run import-budget -- data/budget-export.sample.json --out data/plan.json
 ```
 
 The `main` branch deploys to GitHub Pages through
-`.github/workflows/pages.yml` (enable Pages with the "GitHub Actions" source
-in the repository settings once).
+`.github/workflows/pages.yml`. The workflow enables Pages on first run; if
+that step is refused, enable Pages with the "GitHub Actions" source in the
+repository settings once.
+
+## Install it on your phone
+
+The site is a progressive web app: it installs to the home screen, opens
+full-screen, and keeps working offline from the cached build. Your plan is
+stored on the device.
+
+- **Android (Chrome):** open the site, tap **Install** in the banner (or the
+  browser menu, "Add to Home screen").
+- **iPhone (Safari):** open the site, tap the Share button, then
+  **Add to Home Screen**. Other iOS browsers cannot install web apps.
+- **Desktop (Chrome/Edge):** the install icon appears in the address bar.
+
+When a new version is deployed the app shows a "Reload" banner.
 
 ## What the model does
 
