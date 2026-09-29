@@ -117,7 +117,12 @@ goal lands on time. These are the headline numbers. Two more solvers answer
 that keeps the plan from ever running short, and the savings needed today
 at the assumed return. A third finds how much of the planned lifestyle
 spending (living, children, travel) the plan can carry with no shortfall and
-reports the resulting peak monthly spending. The five-year table shows, per stretch of life, the
+reports the resulting peak monthly spending. The "Portfolio strategies"
+section runs six variations of your plan (as entered, index funds only,
+rentals yearly from now, cash-flow rentals self-managed, all-cash rentals,
+and cash-flow rentals with a smaller home) and shows for each when savings
+run out, the peak spending it carries, and the estate per child at that
+budget. "Use this" switches the plan to that strategy. The five-year table shows, per stretch of life, the
 spending that investments must cover next to what they actually earn.
 
 Not modelled (on purpose, for now): progressive tax brackets, retirement

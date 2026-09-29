@@ -207,3 +207,22 @@ body.locked > :not(#lock-screen) { display: none !important; }
 .export-panel form.card { width: min(420px, 100%); display: flex; flex-direction: column; gap: 10px; }
 .export-panel form.card h2, .export-panel form.card p { margin: 0; }
 .export-panel .error:empty { display: none; }
+
+.strategies { max-height: none; }
+.strategies td:first-child, .strategies th:first-child { text-align: left; white-space: normal; min-width: 180px; }
+.strategies td .muted { display: block; font-size: 11px; }
+.strategies th { white-space: normal; vertical-align: bottom; }
+.strategies tr.current td { background: var(--event-bg); }
+.strategies td.ok { color: var(--text-primary); font-weight: 600; }
+.strategies td.bad { color: var(--danger); }
+.strategies button { padding: 4px 10px; font-size: 12px; }
+.playbook-title { font-size: 14px; margin: 16px 0 6px; }
+.playbook { margin: 0 0 10px; padding-left: 20px; display: flex; flex-direction: column; gap: 6px; max-width: 70ch; }
+@media (max-width: 640px) {
+  .strategies thead { display: none; }
+  .strategies table, .strategies tbody, .strategies tr, .strategies td { display: block; width: 100%; text-align: left; white-space: normal; }
+  .strategies tr { padding: 8px 0; border-bottom: 1px solid var(--grid); }
+  .strategies td { border: none; padding: 2px 8px; min-width: 0; }
+  .strategies td[data-label] { display: flex; justify-content: space-between; gap: 12px; }
+  .strategies td[data-label]::before { content: attr(data-label); color: var(--text-muted); }
+}

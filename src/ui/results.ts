@@ -1,4 +1,4 @@
-import type { Health, InvestmentTargets, Period, Plan, Projection, RequiredIncome, YearRow } from '../engine/index.ts';
+import type { Health, InvestmentTargets, Period, Plan, Projection, RequiredIncome, StrategyResult, YearRow } from '../engine/index.ts';
 import { money, pct } from './format.ts';
 
 const el = (id: string) => document.getElementById(id)!;
@@ -193,4 +193,25 @@ export function renderSimpleYears(rows: YearRow[]): void {
     })
     .join('');
   el('simple-years').innerHTML = `<table><thead>${head}</thead><tbody>${body}</tbody></table>`;
+}
+
+export function renderStrategies(results: StrategyResult[], onUse: (id: string) => void): void {
+  const best = results.reduce((b, r) => ((r.carriesPeakPerMonth ?? -1) > (b.carriesPeakPerMonth ?? -1) ? r : b), results[0]);
+  const head = '<tr><th>Strategy</th><th>Savings run out</th><th>Rentals bought / sold</th><th>Carries / mo</th><th>Left per child at that budget</th><th></th></tr>';
+  const body = results
+    .map((r) => {
+      const cur = r.id === 'as-entered';
+      return `<tr class="${cur ? 'current' : ''}"><td><b>${esc(r.name)}</b>${r.id === best.id && !cur ? ' <span class="muted">Carries the most</span>' : ''}<span class="muted">${esc(r.detail)}</span></td>` +
+        `<td data-label="Savings run out" class="${r.shortAtAge === null ? 'ok' : 'bad'}">${r.shortAtAge === null ? 'never' : 'age ' + r.shortAtAge}</td>` +
+        `<td data-label="Rentals bought / sold">${r.rentalsBought} / ${r.rentalsSold}</td>` +
+        `<td data-label="Carries / mo">${r.carriesPeakPerMonth === null ? 'n/a' : money(r.carriesPeakPerMonth)}${r.carriesShare === 1 ? ' <span class="muted">full plan</span>' : ''}</td>` +
+        `<td data-label="Left per child">${r.perChildAtCarried === null ? 'n/a' : money(r.perChildAtCarried)}</td>` +
+        `<td>${cur ? '<span class="muted">current</span>' : `<button type="button" data-strategy="${r.id}">Use this</button>`}</td></tr>`;
+    })
+    .join('');
+  const root = el('strategies');
+  root.innerHTML = `<table><thead>${head}</thead><tbody>${body}</tbody></table>`;
+  root.querySelectorAll<HTMLButtonElement>('button[data-strategy]').forEach((b) =>
+    b.addEventListener('click', () => onUse(b.dataset.strategy!)),
+  );
 }
