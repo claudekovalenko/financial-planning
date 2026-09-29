@@ -15,8 +15,10 @@ export interface Meta {
 }
 
 export interface Income {
-  /** Gross annual salary today. */
+  /** Gross annual employment income in today's dollars once it starts. 0 if you have none and plan none. */
   salary: number;
+  /** Age employment income starts. Equal to the current age if you are earning now. */
+  salaryStartAge: number;
   /** Annual nominal raise rate (0.03 = 3%). */
   salaryGrowth: number;
   /** Combined effective federal + state + FICA rate on earned income. */
@@ -25,7 +27,7 @@ export interface Income {
   retireAge: number;
   /** Gross annual retirement income from that age (pension, social security), today's dollars. */
   retirementIncome: number;
-  /** Other annual income today (side business, ministry stipend), today's dollars. */
+  /** Business, ministry or side income per year, today's dollars, from now on. */
   otherIncome: number;
   spouse: {
     /** Spouse gross annual income (today's dollars) once married. */
@@ -42,7 +44,7 @@ export interface Spending {
   monthlyRent: number;
   /** General inflation applied to expenses (0.03 = 3%). */
   inflation: number;
-  /** Giving floor: share of gross income always given (the tithe). */
+  /** Giving floor: share of all income (earned, rental cash flow, investment returns) always given. */
   givingRate: number;
   /**
    * Generosity above provision: share of salary earned ABOVE the provision

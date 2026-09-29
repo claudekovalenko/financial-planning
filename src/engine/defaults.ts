@@ -2,7 +2,8 @@ import type { Plan } from './types.ts';
 
 /**
  * Baseline plan built from the owner's description:
- * 31 today, ~$5.5k/mo spending with cheap rent, marriage in ~5 years,
+ * 31 today, no employment income yet (savings do the earning), ~$5.5k/mo
+ * spending with cheap rent, marriage in ~5 years,
  * ~7 children over the following 10-12 years, a rental portfolio for
  * financial freedom, regular travel for ministry and family, and an
  * estate passed to the children.
@@ -18,7 +19,8 @@ export const defaultPlan: Plan = {
     currency: 'USD',
   },
   income: {
-    salary: 100_000,
+    salary: 0,
+    salaryStartAge: 31,
     salaryGrowth: 0.035,
     effectiveTaxRate: 0.22,
     retireAge: 67,

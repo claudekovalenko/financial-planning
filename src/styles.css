@@ -163,3 +163,16 @@ body[data-mode='simple'] .hero-value { font-size: 44px; }
   .periods td[data-label] { display: flex; justify-content: space-between; gap: 12px; }
   .periods td[data-label]::before { content: attr(data-label); color: var(--text-muted); }
 }
+
+.health-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px 24px; }
+.health-grid h4 { margin: 0 0 4px; }
+.health-grid table { font-size: 13px; }
+.health-grid td { padding: 3px 0; border-bottom: 1px solid var(--grid); }
+.health-grid td:first-child { text-align: left; color: var(--text-secondary); }
+.health-grid tr.total td { font-weight: 600; border-bottom: none; }
+.health-grid .zero { color: var(--text-muted); }
+.health-facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-top: 14px; }
+.fact { padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface-0); }
+.fact .tile-value { font-size: 20px; }
+.fact.bad .tile-value { color: var(--danger); }
+.health-next { margin: 14px 0 0; padding: 10px 12px; border-left: 3px solid var(--accent); background: var(--event-bg); border-radius: 0 6px 6px 0; }

@@ -83,7 +83,8 @@ function run(plan: Plan, provision: number | null, provisionAuto: boolean): Proj
     // ---- earned income ------------------------------------------------
     const retired = age >= income.retireAge;
     if (age === income.retireAge) events.push('Retired');
-    const salary = retired ? 0 : income.salary * Math.pow(1 + income.salaryGrowth, t);
+    const salary = retired || age < income.salaryStartAge ? 0 : income.salary * Math.pow(1 + income.salaryGrowth, t);
+    if (age === income.salaryStartAge && income.salary > 0 && t > 0) events.push(`Employment income starts at ${fmt(salary)}`);
     const retirementIncome = retired ? income.retirementIncome * infl : 0;
     const spouseWorks = married && !retired && !(income.spouse.stopsAtFirstChild && firstChildBorn);
     const spouseIncome = spouseWorks ? income.spouse.annualIncome * infl : 0;
@@ -139,6 +140,7 @@ function run(plan: Plan, provision: number | null, provisionAuto: boolean): Proj
     const rentalCashFlow = rentalGrossRent - rentalOperating - rentalDebtService - rentalTaxes;
 
     // ---- household expenses ------------------------------------------
+    const investmentReturn = Math.max(0, investments) * savings.returnRate;
     let mult = married ? spending.marriedMultiplier : 1;
     if (retired) mult *= spending.retirementMultiplier;
     const living = spending.monthlyBase * 12 * mult * infl;
@@ -146,7 +148,8 @@ function run(plan: Plan, provision: number | null, provisionAuto: boolean): Proj
       childrenAtHome > 0 ? (family.firstChildCost + (childrenAtHome - 1) * family.additionalChildCost) * infl : 0;
     const launching = childrenAges.filter((a) => a >= 18 && a <= 21).length;
     const launchFund = (launching * family.launchFundPerChild * infl) / 4;
-    const givingFloor = spending.givingRate * (grossEarned + Math.max(0, rentalCashFlow));
+    // Giving floor applies to everything that came in: earned income, rental cash flow and investment returns.
+    const givingFloor = spending.givingRate * (grossEarned + Math.max(0, rentalCashFlow) + investmentReturn);
     const provisionNow = provision !== null && !retired ? provision * Math.pow(1 + income.salaryGrowth, t) : null;
     const givingSurplus =
       provisionNow !== null && spending.surplusGivingRate > 0 ? Math.max(0, salary - provisionNow) * spending.surplusGivingRate : 0;
@@ -167,8 +170,7 @@ function run(plan: Plan, provision: number | null, provisionAuto: boolean): Proj
       total: living + housingCost + children + launchFund + giving + travel,
     };
 
-    // ---- cash flow and investments -----------------------------------
-    const investmentReturn = Math.max(0, investments) * savings.returnRate;
+    // (investmentReturn is computed above so giving can include it)
     let cashFlow = netEarned + rentalCashFlow - expenses.total;
     investments += investmentReturn + cashFlow - purchases;
 

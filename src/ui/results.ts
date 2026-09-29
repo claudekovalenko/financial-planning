@@ -1,4 +1,4 @@
-import type { Period, Plan, Projection, RequiredIncome, YearRow } from '../engine/index.ts';
+import type { Health, Period, Plan, Projection, RequiredIncome, YearRow } from '../engine/index.ts';
 import { money, pct } from './format.ts';
 
 const el = (id: string) => document.getElementById(id)!;
@@ -9,10 +9,14 @@ export function renderSummary(p: Projection, need: RequiredIncome, real: boolean
   const shortfall = s.shortfallYears.length > 0;
 
   el('hero-value').textContent = need.noShortfall === null ? 'n/a' : money(need.noShortfall);
+  const earnedNow = plan.income.salary > 0 && plan.income.salaryStartAge <= plan.meta.currentAge;
+  const planned = plan.income.salary > 0
+    ? `You planned <b>${money(plan.income.salary)}</b>${earnedNow ? '' : ` from age ${plan.income.salaryStartAge}`}`
+    : 'You have <b>no employment income</b> planned';
   el('hero-sub').innerHTML = shortfall
-    ? `Gross salary in today's dollars for this plan to work with no shortfall. You entered <b>${money(plan.income.salary)}</b>, ` +
+    ? `Gross employment income, in today's dollars, that makes this plan work with no shortfall. ${planned}, ` +
       `so savings run dry in <b>${s.shortfallYears[0]}</b> (age ${s.shortfallYears[0] - plan.meta.startYear + plan.meta.currentAge}).`
-    : `Gross salary in today's dollars at which this plan just works. You entered <b>${money(plan.income.salary)}</b>, so there is room to spare.`;
+    : `Gross employment income, in today's dollars, at which this plan just works. ${planned}, so there is room to spare.`;
 
   const tiles: [string, string, string][] = [
     ['Free by retirement needs', need.freeByRetirement === null ? 'n/a' : money(need.freeByRetirement), `salary for passive income to cover spending by ${plan.income.retireAge}`],
@@ -94,4 +98,51 @@ export function renderPeriods(ps: Period[]): void {
     })
     .join('');
   el('periods').innerHTML = `<table><thead>${head}</thead><tbody>${body}</tbody></table>`;
+}
+
+export function renderHealth(h: Health, plan: Plan): void {
+  const row = (label: string, v: number, total = false) =>
+    `<tr class="${total ? 'total' : ''}"><td>${label}</td><td class="${v === 0 && !total ? 'zero' : ''}">${money(v)}</td></tr>`;
+  const runway = h.runwayYears === null
+    ? 'savings never run out in this plan'
+    : `${h.runwayYears < 1 ? 'under a year' : h.runwayYears + ' years'} until savings hit zero as planned`;
+  const burning = h.gapPerMonth < 0;
+  const next = burning
+    ? `To stop drawing down savings today you need about <b>${money(h.incomeToDevelopPerMonth)}/mo</b> more gross income ` +
+      `(${money(h.incomeToDevelopPerMonth * 12)}/yr). Your investments cover <b>${Math.round(h.passiveCoverage * 100)}%</b> of spending. ` +
+      `The salary figure below is what the whole plan takes, family and rentals included.`
+    : `You are not drawing down savings today. Your investments alone cover <b>${Math.round(h.passiveCoverage * 100)}%</b> of spending. ` +
+      `The salary figure below is what the whole plan takes, family and rentals included.`;
+  el('health').innerHTML = `
+    <div class="health-grid">
+      <div>
+        <h4>Income per month</h4>
+        <table>
+          ${row('Employment', h.income.employment)}
+          ${row('Business / side', h.income.business)}
+          ${row('Investments (' + (plan.savings.returnRate * 100).toFixed(1) + '% on savings)', h.income.investments)}
+          ${row('Rentals', h.income.rental)}
+          ${h.income.spouse ? row('Spouse', h.income.spouse) : ''}
+          ${row('Total before tax', h.income.total, true)}
+        </table>
+      </div>
+      <div>
+        <h4>Spending per month</h4>
+        <table>
+          ${row('Living', h.spending.living)}
+          ${row('Rent / housing', h.spending.housing)}
+          ${row('Giving', h.spending.giving)}
+          ${row('Travel', h.spending.travel)}
+          ${h.spending.children ? row('Children', h.spending.children) : ''}
+          ${row('Total', h.spending.total, true)}
+        </table>
+      </div>
+    </div>
+    <div class="health-facts">
+      <div class="fact ${burning ? 'bad' : ''}"><div class="tile-label">${burning ? 'Drawing down' : 'Adding to savings'} per month</div><div class="tile-value">${money(Math.abs(h.gapPerMonth))}</div><div class="tile-sub">after tax on earned income</div></div>
+      <div class="fact"><div class="tile-label">Savings today</div><div class="tile-value">${money(h.savings)}</div><div class="tile-sub">${h.simpleRunwayYears === null ? 'not being spent down' : `${h.simpleRunwayYears.toFixed(1)} years at today's burn`}</div></div>
+      <div class="fact ${h.runwayYears !== null && h.runwayYears < 5 ? 'bad' : ''}"><div class="tile-label">Runway</div><div class="tile-value">${h.runwayYears === null ? 'clear' : h.runwayYears < 1 ? '< 1 yr' : h.runwayYears + ' yrs'}</div><div class="tile-sub">${runway}</div></div>
+      <div class="fact"><div class="tile-label">Income to develop</div><div class="tile-value">${money(h.incomeToDevelopPerMonth)}/mo</div><div class="tile-sub">to break even today</div></div>
+    </div>
+    <p class="health-next">${next}</p>`;
 }

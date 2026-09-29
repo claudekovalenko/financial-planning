@@ -72,8 +72,8 @@ Each year, in order:
    (first child cost + a marginal cost per additional child), launch funds at
    ages 18-21, giving, and travel priced as flights per household member plus
    other travel. All inflate.
-6. **Giving.** Two layers. The *floor* is a share of gross income (10% by
-   default) given every year no matter what. *Generosity above provision*
+6. **Giving.** Two layers. The *floor* is a share of all income (earned, rental cash flow and
+   investment returns; 10% by default) given every year no matter what. *Generosity above provision*
    gives a chosen share of any salary earned above the **provision salary**,
    the amount that provides for the family. Leave the provision salary blank
    and the planner uses the salary at which the plan has no shortfall, so

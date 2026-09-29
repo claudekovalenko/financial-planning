@@ -24,12 +24,13 @@ describe('project', () => {
 
   it('first year matches the inputs directly', () => {
     const plan = freshPlan();
+    plan.income.salary = 100_000;
     const r = project(plan).rows[0];
     expect(r.grossEarned).toBe(100_000);
     expect(r.taxes).toBeCloseTo(22_000, 6);
     expect(r.expenses.living).toBeCloseTo(4_500 * 12, 6);
     expect(r.expenses.housing).toBeCloseTo(1_000 * 12, 6);
-    expect(r.expenses.giving).toBeCloseTo(10_000, 6);
+    expect(r.expenses.giving).toBeCloseTo(10_000 + 0.1 * 30_000 * 0.065, 6);
     expect(r.expenses.travel).toBeCloseTo(1 * 2 * 400 + 2_000, 6);
     expect(r.expenses.children).toBe(0);
     expect(r.investments).toBeCloseTo(30_000 * 1.065 + r.cashFlow, 6);
@@ -107,6 +108,7 @@ describe('project', () => {
 describe('solvers', () => {
   it('finds a salary that removes shortfalls, and it is higher than the baseline', () => {
     const plan = freshPlan();
+    plan.income.salary = 100_000;
     const s = solveSalary(plan, (p) => p.summary.shortfallYears.length === 0)!;
     expect(s).toBeGreaterThan(100_000);
     const p2 = freshPlan();
@@ -126,11 +128,13 @@ describe('solvers', () => {
 describe('giving', () => {
   it('always gives the floor and nothing above provision when salary equals provision', () => {
     const plan = freshPlan();
-    plan.income.salary = 222_000;
+    const prov = project(plan).summary.provisionSalary!;
+    expect(prov).toBeGreaterThan(200_000);
+    plan.income.salary = prov;
     const { rows, summary } = project(plan);
     expect(summary.provisionAuto).toBe(true);
-    expect(summary.provisionSalary).toBe(222_000);
-    expect(rows[0].expenses.giving).toBeCloseTo(22_200, 6);
+    expect(summary.provisionSalary).toBe(prov);
+    expect(rows[0].expenses.giving).toBeCloseTo(0.1 * (prov + 30_000 * 0.065), 6);
     expect(summary.lifetime.givingSurplus).toBe(0);
   });
 
@@ -138,8 +142,9 @@ describe('giving', () => {
     const plan = freshPlan();
     plan.income.salary = 300_000;
     const { rows, summary } = project(plan);
-    expect(rows[0].expenses.givingSurplus).toBeCloseTo(0.5 * (300_000 - 222_000), 6);
-    expect(rows[0].expenses.giving).toBeCloseTo(30_000 + 39_000, 6);
+    const prov = summary.provisionSalary!;
+    expect(rows[0].expenses.givingSurplus).toBeCloseTo(0.5 * (300_000 - prov), 6);
+    expect(rows[0].expenses.giving).toBeCloseTo(0.1 * (300_000 + 30_000 * 0.065) + 0.5 * (300_000 - prov), 6);
     expect(summary.shortfallYears).toEqual([]);
     expect(summary.lifetime.givingSurplus).toBeGreaterThan(0);
     // Surplus giving stops when the salary stops.
@@ -172,6 +177,7 @@ describe('periods', () => {
   it('splits the projection into five-year blocks with today-dollar figures', async () => {
     const { periods } = await import('../src/engine/periods.ts');
     const plan = freshPlan();
+    plan.income.salary = 100_000;
     const p = project(plan);
     const ps = periods(p);
     expect(ps).toHaveLength(11);
@@ -183,5 +189,34 @@ describe('periods', () => {
     expect(ps[0].incomeToCover).toBeGreaterThan(100_000);
     expect(ps[0].incomeToCover).toBeLessThan(115_000);
     expect(ps[0].plannedIncome).toBeCloseTo(p.rows.slice(0, 5).reduce((s, r) => s + r.grossEarned * r.deflator, 0) / 5, 6);
+  });
+});
+
+
+describe('starting without earned income', () => {
+  it('has zero salary until the start age, then grows from the today-dollar figure', () => {
+    const plan = freshPlan();
+    plan.income.salary = 120_000;
+    plan.income.salaryStartAge = 34;
+    const { rows } = project(plan);
+    expect(rows[0].salary).toBe(0);
+    expect(rows[2].salary).toBe(0);
+    expect(rows[3].salary).toBeCloseTo(120_000 * Math.pow(1.035, 3), 6);
+    expect(rows[3].events.some((e) => e.startsWith('Employment income starts'))).toBe(true);
+  });
+
+  it('health snapshot shows investments as the only income and a burn with runway', async () => {
+    const { health } = await import('../src/engine/health.ts');
+    const plan = freshPlan();
+    plan.savings.current = 500_000;
+    const p = project(plan);
+    const h = health(p);
+    expect(h.income.employment).toBe(0);
+    expect(h.income.investments).toBeCloseTo((500_000 * 0.065) / 12, 6);
+    expect(h.spending.total).toBeCloseTo(p.rows[0].expenses.total / 12, 6);
+    expect(h.gapPerMonth).toBeLessThan(0);
+    expect(h.simpleRunwayYears).toBeGreaterThan(0);
+    expect(h.incomeToDevelopPerMonth).toBeCloseTo(-h.gapPerMonth / 0.78, 6);
+    expect(h.runwayYears).not.toBeNull();
   });
 });

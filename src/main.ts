@@ -1,7 +1,7 @@
-import { freshPlan, periods, project, requiredIncome, withDefaults, type Plan } from './engine/index.ts';
+import { freshPlan, health, periods, project, requiredIncome, withDefaults, type Plan } from './engine/index.ts';
 import { renderForm } from './ui/form.ts';
 import { createCharts } from './ui/charts.ts';
-import { planLabel, renderPeriods, renderSummary, renderTable } from './ui/results.ts';
+import { planLabel, renderHealth, renderPeriods, renderSummary, renderTable } from './ui/results.ts';
 import { renderBudgetPanel } from './ui/budget-panel.ts';
 import { setupInstall } from './ui/install.ts';
 
@@ -129,6 +129,7 @@ function recompute() {
   try {
     const p = project(plan);
     const need = requiredIncome(plan);
+    renderHealth(health(p), plan);
     renderSummary(p, need, real);
     renderPeriods(periods(p));
     if (mode === 'full') {
