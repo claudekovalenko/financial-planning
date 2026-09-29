@@ -226,3 +226,29 @@ body.locked > :not(#lock-screen) { display: none !important; }
   .strategies td[data-label] { display: flex; justify-content: space-between; gap: 12px; }
   .strategies td[data-label]::before { content: attr(data-label); color: var(--text-muted); }
 }
+
+.legacy-card { background: var(--surface-1); border: 1px solid var(--border); border-radius: 8px; padding: 18px 20px; display: flex; flex-direction: column; gap: 12px; }
+.legacy-label { color: var(--text-secondary); font-size: 14px; }
+.legacy-label b { color: var(--text-primary); }
+.legacy-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px 32px; }
+.legacy-small { font-size: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.04em; }
+.legacy-value { font-size: 40px; font-weight: 600; line-height: 1.1; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+.legacy-value-2 { font-size: 28px; padding-top: 8px; }
+.legacy-value.bad { color: var(--danger); }
+.legacy-sub { color: var(--text-secondary); font-size: 13px; max-width: 42ch; margin-top: 4px; }
+.legacy-chart { height: 300px; }
+.versions-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+.versions-head h2 { margin: 0; }
+.versions-head .primary { margin-top: 0; }
+.version-list { list-style: none; margin: 10px 0 0; padding: 0; display: flex; flex-direction: column; }
+.version-list li { display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; padding: 10px 0; border-top: 1px solid var(--grid); align-items: center; }
+.version-list .v-name { font-weight: 600; }
+.version-list .v-facts { grid-column: 1; color: var(--text-secondary); font-size: 13px; }
+.version-list .v-actions { grid-column: 2; grid-row: 1 / span 2; display: flex; gap: 6px; }
+.version-list .v-actions button { padding: 4px 10px; font-size: 12px; }
+.version-list li.active .v-name::after { content: ' (open)'; color: var(--text-muted); font-weight: 400; }
+.every-year summary { cursor: pointer; list-style: none; }
+.every-year summary h2 { display: inline; margin: 0; }
+.every-year summary::before { content: '▸ '; color: var(--text-muted); }
+.every-year[open] summary::before { content: '▾ '; }
+.every-year[open] summary { margin-bottom: 8px; }

@@ -130,7 +130,7 @@ describe('giving', () => {
   it('always gives the floor and nothing above provision when salary equals provision', () => {
     const plan = freshPlan();
     const prov = project(plan).summary.provisionSalary!;
-    expect(prov).toBeGreaterThan(200_000);
+    expect(prov).toBeGreaterThan(100_000);
     plan.income.salary = prov;
     const { rows, summary } = project(plan);
     expect(summary.provisionAuto).toBe(true);
@@ -256,7 +256,7 @@ describe('investment targets', () => {
     plan.savings.current = 1_000_000;
     const ps = periods(project(plan));
     expect(ps[0].neededFromInvestments).toBeGreaterThan(0);
-    expect(ps[0].investmentsEarn).toBeGreaterThan(50_000);
+    expect(ps[0].investmentsEarn).toBeGreaterThan(40_000);
   });
 });
 

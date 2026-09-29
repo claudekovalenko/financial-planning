@@ -147,8 +147,14 @@ export interface Savings {
   };
 }
 
+export interface Legacy {
+  /** Amount to leave each child at the end of the plan, in today's dollars. */
+  perChild: number;
+}
+
 export interface Plan {
   meta: Meta;
+  legacy: Legacy;
   income: Income;
   spending: Spending;
   family: Family;

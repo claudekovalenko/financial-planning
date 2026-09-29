@@ -2,6 +2,8 @@ import type { Plan } from './types.ts';
 
 /**
  * Example plan used until you enter your own numbers.
+ * Rentals follow the recommended cash-flow approach (bought yearly from now,
+ * rent near 10% of price, costs near 35% of rent) with a modest home.
  * Every value is a placeholder assumption to be edited in the app; your own
  * plan is stored encrypted on your device, never in this repository.
  */
@@ -12,6 +14,9 @@ export const defaultPlan: Plan = {
     currentAge: 31,
     deathAge: 85,
     currency: 'USD',
+  },
+  legacy: {
+    perChild: 500_000,
   },
   income: {
     salary: 0,
@@ -53,7 +58,7 @@ export const defaultPlan: Plan = {
   },
   housing: {
     buyHomeAge: 37,
-    homePrice: 450_000,
+    homePrice: 340_000,
     downPaymentRate: 0.10,
     mortgageRate: 0.065,
     mortgageYears: 30,
@@ -63,17 +68,17 @@ export const defaultPlan: Plan = {
   },
   rentals: {
     enabled: true,
-    firstPurchaseAge: 34,
-    yearsBetweenPurchases: 2,
+    firstPurchaseAge: 31,
+    yearsBetweenPurchases: 1,
     targetCount: 10,
     price: 275_000,
     downPaymentRate: 0.25,
     closingCostRate: 0.03,
     mortgageRate: 0.07,
     mortgageYears: 30,
-    grossYield: 0.085,
+    grossYield: 0.10,
     vacancyRate: 0.06,
-    operatingExpenseRate: 0.40,
+    operatingExpenseRate: 0.35,
     appreciation: 0.03,
     rentGrowth: 0.03,
     reserveMonths: 6,

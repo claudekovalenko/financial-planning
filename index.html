@@ -60,17 +60,48 @@
       </aside>
 
       <main class="content">
-        <section class="card health">
+        <section class="legacy-card">
+          <div class="legacy-label">To leave each child at least <b id="legacy-target">–</b> in today's dollars</div>
+          <div class="legacy-row">
+            <div>
+              <div class="legacy-small">you can spend</div>
+              <div id="legacy-spend" class="legacy-value">–</div>
+              <div id="legacy-spend-sub" class="legacy-sub"></div>
+            </div>
+            <div>
+              <div class="legacy-small">at your current spending</div>
+              <div id="legacy-current" class="legacy-value legacy-value-2">–</div>
+              <div id="legacy-current-sub" class="legacy-sub"></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="card">
+          <h2>What you own over your life</h2>
+          <p class="muted">Savings plus home and rental equity, in today's dollars. The end of each line is what passes to your children.</p>
+          <div class="chart legacy-chart"><canvas id="chart-legacy"></canvas></div>
+        </section>
+
+        <section class="card">
+          <div class="versions-head">
+            <h2>Your versions</h2>
+            <button id="btn-save-version" type="button" class="primary">Save this version</button>
+          </div>
+          <p class="muted">Change the numbers, save, and compare. Open a version to go back to it.</p>
+          <div id="versions"></div>
+        </section>
+
+        <section class="card health full-only">
           <h2>Where you stand today</h2>
           <div id="health"></div>
         </section>
 
-        <section class="card">
+        <section class="card full-only">
           <h2>What your investments need to do</h2>
           <div id="investing"></div>
         </section>
 
-        <section class="card">
+        <section class="card full-only">
           <h2>Portfolio strategies</h2>
           <p class="muted">The same plan run six ways, using your numbers. "Savings run out" is at your planned spending. "Carries" is the peak family spending per month, in today's dollars, the strategy supports without ever running short, and "left per child" is the estate if you spend at that level.</p>
           <div id="strategies" class="table-wrap strategies"></div>
@@ -85,23 +116,23 @@
           <p class="muted">Projections use smooth average returns, not advice. Have a fee-only planner or CPA check taxes and financing before buying.</p>
         </section>
 
-        <section class="hero">
+        <section class="hero full-only">
           <div class="hero-label">Salary this life needs (today's dollars, before tax)</div>
           <div id="hero-value" class="hero-value">–</div>
           <p id="hero-sub" class="hero-sub"></p>
         </section>
 
-        <section class="card">
+        <section class="card full-only">
           <h2>What each stretch of life takes</h2>
           <p class="muted">Today's dollars, averaged per year. "Needed from investments" is spending not covered by take-home pay and rental income. Red means your investments earn less than that and savings shrink.</p>
           <div id="periods" class="table-wrap periods"></div>
         </section>
 
-        <section class="card">
-          <h2>Year by year</h2>
-          <p class="muted">Every year of the plan in today's dollars. Money in is pay, investment return and rental income. Savings is cash and investments at year end. Net worth adds home and rental equity.</p>
+        <details class="card every-year">
+          <summary><h2>See every year</h2></summary>
+          <p class="muted">Every year of the plan in today's dollars, at your current spending. Money in is investment return, rental income and any pay. Savings is cash and investments at year end. Net worth adds home and rental equity.</p>
           <div id="simple-years" class="table-wrap simple-years"></div>
-        </section>
+        </details>
 
 
         <section id="tiles" class="tiles full-only"></section>

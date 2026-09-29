@@ -174,3 +174,30 @@ export function createCharts(els: { netWorth: HTMLCanvasElement; income: HTMLCan
     },
   };
 }
+
+/** One chart for the simple view: net worth at the target spending vs current spending. */
+export function createLegacyChart(canvas: HTMLCanvasElement): {
+  update(target: YearRow[] | null, current: YearRow[], targetLabel: string): void;
+} {
+  let chart: Chart | null = null;
+  let last: [YearRow[] | null, YearRow[], string] | null = null;
+  const build = (target: YearRow[] | null, current: YearRow[], targetLabel: string) => {
+    chart?.destroy();
+    const labels = current.map((r) => `${r.age}`);
+    const today = (rows: YearRow[]) => rows.map((r) => r.netWorth * r.deflator);
+    const datasets = [];
+    if (target) datasets.push({ ...line(targetLabel, 0, true), data: today(target) });
+    datasets.push({ ...line('At your current spending', 1), data: today(current) });
+    const opts = baseOptions(true);
+    opts.scales.x.ticks = { ...opts.scales.x.ticks, callback: (_v: unknown, i: number) => `age ${labels[i]}` } as typeof opts.scales.x.ticks;
+    opts.plugins.tooltip.callbacks.title = (items: any[]) => `Age ${items[0]?.label ?? ''}`;
+    chart = new Chart(canvas, { type: 'line', data: { labels, datasets }, options: opts });
+  };
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => last && build(...last));
+  return {
+    update(target, current, targetLabel) {
+      last = [target, current, targetLabel];
+      build(target, current, targetLabel);
+    },
+  };
+}

@@ -18,6 +18,26 @@ under. The copy is useless without the password, and no readable export
 exists. Actual spending is pulled
 from the budgeting app through a small JSON contract.
 
+## The main screen
+
+The app opens on one question: how much can you spend each month and still
+leave each child a chosen amount, in today's dollars, when the plan ends?
+
+- **The answer** shows the monthly spending that leaves at least that amount
+  per child, and what happens at the spending you have entered.
+- **One chart** compares what you own over your life on both paths. The end
+  of each line is what passes to your children.
+- **Eight inputs**: amount per child, savings, monthly spending, rent, age,
+  marriage age, children and plan-to age. Everything else is under
+  "Show all details".
+- **Versions**: save the current numbers, change them, save again, and
+  compare. "Open" returns to a saved version. Versions are stored with the
+  plan, encrypted on the device, and travel with encrypted copies.
+
+The example plan follows the recommended approach: rentals bought one a
+year from now with rent near 10% of the price and running costs near 35% of
+rent, and a modest home.
+
 ## Run it
 
 ```

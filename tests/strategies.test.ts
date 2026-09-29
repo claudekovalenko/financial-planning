@@ -6,6 +6,11 @@ describe('strategies', () => {
   it('compares every strategy on the same plan without changing it', () => {
     const plan = freshPlan();
     plan.savings.current = 2_000_000;
+    // Start from a slower, lower-yield rental plan so the strategies differ from it.
+    plan.rentals.firstPurchaseAge = 34;
+    plan.rentals.yearsBetweenPurchases = 2;
+    plan.rentals.grossYield = 0.085;
+    plan.rentals.operatingExpenseRate = 0.4;
     const before = JSON.stringify(plan);
     const results = compareStrategies(plan);
     expect(JSON.stringify(plan)).toBe(before);
@@ -19,6 +24,9 @@ describe('strategies', () => {
 
   it('applies a strategy to a copy of the plan', () => {
     const plan = freshPlan();
+    plan.housing.homePrice = 450_000;
+    plan.rentals.grossYield = 0.085;
+    plan.rentals.operatingExpenseRate = 0.4;
     const next = applyStrategy(plan, 'cash-flow-smaller-home');
     expect(next.rentals.firstPurchaseAge).toBe(plan.meta.currentAge);
     expect(next.rentals.yearsBetweenPurchases).toBe(1);

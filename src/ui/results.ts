@@ -1,4 +1,4 @@
-import type { Health, InvestmentTargets, Period, Plan, Projection, RequiredIncome, StrategyResult, YearRow } from '../engine/index.ts';
+import type { Health, InvestmentTargets, LegacyAnswer, Period, Plan, Projection, RequiredIncome, StrategyResult, YearRow } from '../engine/index.ts';
 import { money, pct } from './format.ts';
 
 const el = (id: string) => document.getElementById(id)!;
@@ -214,4 +214,30 @@ export function renderStrategies(results: StrategyResult[], onUse: (id: string) 
   root.querySelectorAll<HTMLButtonElement>('button[data-strategy]').forEach((b) =>
     b.addEventListener('click', () => onUse(b.dataset.strategy!)),
   );
+}
+
+export function renderLegacy(a: LegacyAnswer): void {
+  el('legacy-target').textContent = money(a.target);
+  const spend = el('legacy-spend');
+  if (a.share === null) {
+    spend.textContent = 'Not reachable';
+    spend.classList.add('bad');
+    el('legacy-spend-sub').textContent = 'Even at a bare-minimum budget the plan cannot leave that much. Try a smaller amount per child or more savings.';
+  } else {
+    spend.classList.remove('bad');
+    spend.textContent = `${money(a.spendNowPerMonth!)}/mo`;
+    el('legacy-spend-sub').textContent =
+      `today, rising to ${money(a.spendPeakPerMonth!)}/mo in the busiest family years. Includes rent or mortgage and giving.`;
+  }
+  const c = a.current;
+  const cur = el('legacy-current');
+  if (c.runsOutAge !== null) {
+    cur.textContent = `Runs out at ${c.runsOutAge}`;
+    cur.classList.add('bad');
+    el('legacy-current-sub').textContent = `You plan ${money(c.spendNowPerMonth)}/mo today and ${money(c.spendPeakPerMonth)}/mo at the busiest. Savings run out before the end, so nothing is left to pass on.`;
+  } else {
+    cur.classList.remove('bad');
+    cur.textContent = `${money(c.perChildToday)} each`;
+    el('legacy-current-sub').textContent = `left to each child if you spend as planned: ${money(c.spendNowPerMonth)}/mo today, ${money(c.spendPeakPerMonth)}/mo at the busiest.`;
+  }
 }

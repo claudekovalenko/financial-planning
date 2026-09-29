@@ -1,10 +1,12 @@
-import { applyStrategy, compareStrategies, freshPlan, health, investmentTargets, periods, project, requiredIncome, withDefaults, type Plan } from './engine/index.ts';
+import { applyStrategy, compareStrategies, freshPlan, health, investmentTargets, legacyAnswer, periods, project, requiredIncome, withDefaults, type LegacyAnswer, type Plan } from './engine/index.ts';
 import { renderForm } from './ui/form.ts';
-import { createCharts } from './ui/charts.ts';
-import { planLabel, renderHealth, renderInvesting, renderPeriods, renderSimpleYears, renderStrategies, renderSummary, renderTable } from './ui/results.ts';
+import { createCharts, createLegacyChart } from './ui/charts.ts';
+import { parseSaved, renderVersions, type Version } from './ui/versions.ts';
+import { planLabel, renderHealth, renderInvesting, renderLegacy, renderPeriods, renderSimpleYears, renderStrategies, renderSummary, renderTable } from './ui/results.ts';
 import { renderBudgetPanel } from './ui/budget-panel.ts';
 import { setupInstall } from './ui/install.ts';
 import { lockNow, unlock, type Session } from './ui/lock.ts';
+import { money } from './ui/format.ts';
 import { backupFileName, makeBackup, parseCopy, type BackupFile } from './backup.ts';
 import { unseal, WrongPassword } from './vault.ts';
 
@@ -17,7 +19,13 @@ setupInstall();
 unlock().then(start);
 
 function start(session: Session): void {
-  let plan: Plan = parsePlan(session.planJson);
+  const saved = parseSaved(session.planJson);
+  let plan: Plan = saved.plan ? withDefaults(saved.plan) : freshPlan();
+  let versions: Version[] = saved.versions.map((v) => ({ ...v, plan: withDefaults(v.plan) }));
+  let activeVersion: string | null = null;
+  let lastAnswer: LegacyAnswer | null = null;
+  const legacyChart = createLegacyChart($('chart-legacy'));
+  const persist = () => session.save(JSON.stringify({ plan, versions }));
   let real = readPref(REAL_KEY) === 'true';
   let mode: 'simple' | 'full' = readPref(MODE_KEY) === 'full' ? 'full' : 'simple';
 
@@ -34,13 +42,56 @@ function start(session: Session): void {
   };
   applyMode();
 
-  const form = renderForm($('form'), () => plan, schedule);
+  const form = renderForm($('form'), () => plan, () => {
+    activeVersion = null;
+    schedule();
+  });
   const replacePlan = (next: Plan) => {
     plan = next;
     form.refresh();
     recompute();
   };
   renderBudgetPanel($('budget-panel'), () => plan, replacePlan);
+
+  const showVersions = () =>
+    renderVersions($('versions'), versions, activeVersion, {
+      open(id) {
+        const v = versions.find((x) => x.id === id);
+        if (!v) return;
+        activeVersion = id;
+        replacePlan(structuredClone(v.plan));
+      },
+      remove(id) {
+        versions = versions.filter((x) => x.id !== id);
+        if (activeVersion === id) activeVersion = null;
+        persist();
+        showVersions();
+      },
+    });
+  $('btn-save-version').addEventListener('click', () => {
+    const a = lastAnswer ?? legacyAnswer(plan);
+    const n = versions.reduce((m, v) => Math.max(m, Number(v.name.replace(/\D+/g, '')) || 0), 0) + 1;
+    const v: Version = {
+      id: `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`,
+      name: `Version ${n}`,
+      savedAt: new Date().toISOString(),
+      plan: structuredClone(plan),
+      facts: {
+        leavePerChild: plan.legacy.perChild,
+        spendNowPerMonth: a.spendNowPerMonth,
+        spendPeakPerMonth: a.spendPeakPerMonth,
+        currentRunsOutAge: a.current.runsOutAge,
+        savings: plan.savings.current,
+      },
+    };
+    versions = [v, ...versions];
+    activeVersion = v.id;
+    persist();
+    showVersions();
+    const btn = $('btn-save-version');
+    btn.textContent = `Saved as ${v.name}`;
+    window.setTimeout(() => (btn.textContent = 'Save this version'), 2000);
+  });
 
   $('btn-mode').addEventListener('click', () => {
     mode = mode === 'simple' ? 'full' : 'simple';
@@ -64,7 +115,7 @@ function start(session: Session): void {
   const exportText = $<HTMLTextAreaElement>('export-text');
   const exportStatus = $('export-status');
   $('btn-export').addEventListener('click', async () => {
-    const sealed = session.latest() ?? (await session.sealNow(JSON.stringify(plan)));
+    const sealed = session.latest() ?? (await session.sealNow(JSON.stringify({ plan, versions })));
     const text = JSON.stringify(makeBackup(sealed));
     const name = backupFileName();
     const file = new File([text], name, { type: 'application/json' });
@@ -132,7 +183,10 @@ function start(session: Session): void {
     openSubmit.disabled = true;
     try {
       const { text } = await unseal(pending.sealed, openPw.value);
-      replacePlan(text === 'null' ? freshPlan() : withDefaults(JSON.parse(text)));
+      const loaded = parseSaved(text === 'null' ? null : text);
+      if (loaded.versions.length) versions = loaded.versions.map((v) => ({ ...v, plan: withDefaults(v.plan) }));
+      activeVersion = null;
+      replacePlan(loaded.plan ? withDefaults(loaded.plan) : freshPlan());
       closeOpen();
     } catch (e) {
       openErr.textContent = e instanceof WrongPassword ? 'That password does not open this copy.' : (e as Error).message;
@@ -190,36 +244,33 @@ function start(session: Session): void {
 
   function recompute() {
     try {
-      const p = project(plan);
-      const need = requiredIncome(plan);
-      renderHealth(health(p), plan);
-      renderInvesting(investmentTargets(p));
-      renderStrategies(compareStrategies(plan), (id) => replacePlan(applyStrategy(plan, id)));
-      renderSummary(p, need, real);
-      renderSimpleYears(p.rows);
-      renderPeriods(periods(p));
+      const a = legacyAnswer(plan);
+      lastAnswer = a;
+      renderLegacy(a);
+      legacyChart.update(a.atTarget?.rows ?? null, a.current.projection.rows, `Spending to leave ${money(a.target)} each`);
+      renderSimpleYears(a.current.projection.rows);
+      showVersions();
+      $('plan-label').textContent = planLabel(plan);
       if (mode === 'full') {
+        const p = a.current.projection;
+        const need = requiredIncome(plan);
+        renderHealth(health(p), plan);
+        renderInvesting(investmentTargets(p));
+        renderStrategies(compareStrategies(plan), (id) => replacePlan(applyStrategy(plan, id)));
+        renderSummary(p, need, real);
+        renderPeriods(periods(p));
         charts.update(p.rows, real);
         renderTable(p.rows, real);
       }
-      $('plan-label').textContent = planLabel(plan);
-      session.save(JSON.stringify(plan));
+      persist();
     } catch (e) {
-      $('hero-sub').textContent = `Could not compute: ${(e as Error).message}`;
+      $('legacy-spend-sub').textContent = `Could not compute: ${(e as Error).message}`;
     }
   }
 
   recompute();
 }
 
-function parsePlan(json: string | null): Plan {
-  if (!json) return freshPlan();
-  try {
-    return withDefaults(JSON.parse(json));
-  } catch {
-    return freshPlan();
-  }
-}
 function readPref(key: string): string | null {
   try {
     return localStorage.getItem(key);
