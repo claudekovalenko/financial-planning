@@ -34,9 +34,10 @@ npm run import-budget -- data/budget-export.sample.json --out data/plan.json
 ```
 
 The `main` branch deploys to GitHub Pages through
-`.github/workflows/pages.yml`. The workflow enables Pages on first run; if
-that step is refused, enable Pages with the "GitHub Actions" source in the
-repository settings once.
+`.github/workflows/pages.yml`. Enable Pages once in the repository settings
+(Settings, Pages, Source: "GitHub Actions"); until then the deploy job fails
+with a 404. The site then lives at
+https://claudekovalenko.github.io/financial-planning/.
 
 ## Install it on your phone
 
