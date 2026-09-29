@@ -1,14 +1,9 @@
 import type { Plan } from './types.ts';
 
 /**
- * Baseline plan built from the owner's description:
- * 31 today, no employment income yet (savings do the earning), ~$5.5k/mo
- * spending with cheap rent, marriage in ~5 years,
- * ~7 children over the following 10-12 years, a rental portfolio for
- * financial freedom, regular travel for ministry and family, and an
- * estate passed to the children.
- *
- * Every number here is an ASSUMPTION to be edited in the app.
+ * Example plan used until you enter your own numbers.
+ * Every value is a placeholder assumption to be edited in the app; your own
+ * plan is stored encrypted on your device, never in this repository.
  */
 export const defaultPlan: Plan = {
   meta: {

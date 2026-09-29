@@ -14,6 +14,22 @@
     <link rel="stylesheet" href="./src/styles.css" />
   </head>
   <body>
+    <div id="lock-screen" class="lock-screen" hidden>
+      <form id="lock-form" class="lock-card" novalidate>
+        <div class="lock-brand">Lifetime Financial Planner</div>
+        <h2 id="lock-title">Enter your password</h2>
+        <p id="lock-intro" class="muted"></p>
+        <label class="lock-field" for="lock-password">Password
+          <input id="lock-password" type="password" autocomplete="current-password" required />
+        </label>
+        <label id="lock-confirm-row" class="lock-field" for="lock-confirm" hidden>Type it again
+          <input id="lock-confirm" type="password" autocomplete="new-password" />
+        </label>
+        <p id="lock-error" class="error" role="alert"></p>
+        <button id="lock-submit" type="submit" class="primary">Open</button>
+        <button id="lock-forgot" type="button" class="link-btn">Forgot password?</button>
+      </form>
+    </div>
     <header class="topbar">
       <div>
         <h1>Lifetime Financial Planner</h1>
@@ -25,6 +41,7 @@
         <button id="btn-export" type="button">Export plan</button>
         <label class="file-btn">Import plan<input id="plan-file" type="file" accept="application/json" hidden /></label>
         <button id="btn-reset" type="button">Reset to baseline</button>
+        <button id="btn-lock" type="button">Lock</button>
       </div>
     </header>
     <div id="install-banner" class="install-banner" hidden>

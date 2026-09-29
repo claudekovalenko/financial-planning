@@ -6,8 +6,11 @@ until the plan's end age**, then reports what the life you describe actually
 costs: the salary it needs, when passive income covers spending, when the
 savings goal lands, and what is left for each child.
 
-Everything is an editable assumption. The plan lives in your browser
-(localStorage) and can be exported/imported as JSON. Actual spending is pulled
+Everything is an editable assumption. The app opens behind a password that
+also encrypts your plan on the device (AES-GCM, key derived with PBKDF2), so
+nothing readable is stored and nothing is sent anywhere. Plans can be
+exported and imported as JSON. There is no password recovery: "Forgot
+password" erases the saved plan and starts over. Actual spending is pulled
 from the budgeting app through a small JSON contract.
 
 ## Run it
@@ -34,9 +37,8 @@ npm run import-budget -- data/budget-export.sample.json --out data/plan.json
 ```
 
 The `main` branch deploys to GitHub Pages through
-`.github/workflows/pages.yml`. Enable Pages once in the repository settings
-(Settings, Pages, Source: "GitHub Actions"); until then the deploy job fails
-with a 404. The site then lives at
+`.github/workflows/pages.yml` once the repository is public and Pages is
+enabled (Settings, Pages, Source: "GitHub Actions"). The site then lives at
 https://claudekovalenko.github.io/financial-planning/.
 
 ## Hosting as an installable app

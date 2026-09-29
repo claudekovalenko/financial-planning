@@ -5,7 +5,7 @@ import { amortizeYear, monthlyPayment, requiredAnnualContribution } from './fina
 const DEPRECIATION_YEARS = 27.5;
 const BUILDING_SHARE = 0.8;
 
-/** Ages (of the owner) at which each child is born, in birth order. Empty when never married. */
+/** Ages (of the planner) at which each child is born, in birth order. Empty when never married. */
 export function childBirthAges(plan: Plan): number[] {
   const { marriageAge, childrenCount, firstChildAfterMarriage, yearsBetweenChildren } = plan.family;
   if (marriageAge === null || childrenCount <= 0) return [];
