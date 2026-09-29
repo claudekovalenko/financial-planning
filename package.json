@@ -11,7 +11,8 @@
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
     "project": "node --experimental-strip-types scripts/project.ts",
-    "import-budget": "node --experimental-strip-types scripts/import-budget.ts"
+    "import-budget": "node --experimental-strip-types scripts/import-budget.ts",
+    "bundle": "node --experimental-strip-types scripts/bundle-single.ts"
   },
   "devDependencies": {
     "@types/node": "^26.6.3",

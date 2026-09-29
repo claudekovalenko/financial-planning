@@ -37,13 +37,31 @@ realToggle.addEventListener('change', () => {
   recompute();
 });
 
+const exportPanel = $('export-panel');
+const exportText = $<HTMLTextAreaElement>('export-text');
 $('btn-export').addEventListener('click', () => {
-  const blob = new Blob([JSON.stringify(plan, null, 2)], { type: 'application/json' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = `${plan.meta.name.replace(/\s+/g, '-').toLowerCase() || 'plan'}.json`;
-  a.click();
-  URL.revokeObjectURL(a.href);
+  exportText.value = JSON.stringify(plan, null, 2);
+  exportPanel.hidden = false;
+  exportText.focus();
+  exportText.select();
+});
+$('btn-export-close').addEventListener('click', () => {
+  exportPanel.hidden = true;
+});
+exportPanel.addEventListener('click', (ev) => {
+  if (ev.target === exportPanel) exportPanel.hidden = true;
+});
+$('btn-copy').addEventListener('click', async () => {
+  const btn = $('btn-copy');
+  try {
+    await navigator.clipboard.writeText(exportText.value);
+    btn.textContent = 'Copied';
+  } catch {
+    exportText.focus();
+    exportText.select();
+    btn.textContent = 'Select all and copy manually';
+  }
+  window.setTimeout(() => (btn.textContent = 'Copy to clipboard'), 2000);
 });
 $<HTMLInputElement>('plan-file').addEventListener('change', async (ev) => {
   const file = (ev.target as HTMLInputElement).files?.[0];
@@ -56,8 +74,20 @@ $<HTMLInputElement>('plan-file').addEventListener('change', async (ev) => {
     alert(`Could not import plan: ${(e as Error).message}`);
   }
 });
+let resetArmed: number | undefined;
 $('btn-reset').addEventListener('click', () => {
-  if (!confirm('Replace your inputs with the baseline plan?')) return;
+  const btn = $('btn-reset');
+  if (resetArmed === undefined) {
+    btn.textContent = 'Click again to reset';
+    resetArmed = window.setTimeout(() => {
+      resetArmed = undefined;
+      btn.textContent = 'Reset to baseline';
+    }, 4000);
+    return;
+  }
+  window.clearTimeout(resetArmed);
+  resetArmed = undefined;
+  btn.textContent = 'Reset to baseline';
   plan = freshPlan();
   form.refresh();
   recompute();

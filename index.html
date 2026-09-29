@@ -71,6 +71,17 @@
         </section>
       </main>
     </div>
+    <div id="export-panel" class="export-panel" hidden>
+      <div class="card">
+        <h2>Plan JSON</h2>
+        <p class="muted">Copy this or save it as a file, then use "Import plan" to load it later or to compare scenarios.</p>
+        <textarea id="export-text" rows="14" spellcheck="false"></textarea>
+        <div class="actions">
+          <button id="btn-copy" type="button" class="primary">Copy to clipboard</button>
+          <button id="btn-export-close" type="button">Close</button>
+        </div>
+      </div>
+    </div>
     <script type="module" src="./src/main.ts"></script>
   </body>
 </html>
