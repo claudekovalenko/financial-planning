@@ -146,3 +146,28 @@ export function renderHealth(h: Health, plan: Plan): void {
     </div>
     <p class="health-next">${next}</p>`;
 }
+
+/** Plain year-by-year table for the simple view, always in today's dollars. */
+export function renderSimpleYears(rows: YearRow[]): void {
+  const hide = /delayed|Estate of|Financially free|Back above|Savings goal/;
+  const tidy = (e: string) =>
+    e
+      .replace(/ for \$[\d,]+ \(\$[\d,]+ cash\)/, '')
+      .replace('Bought home', 'Buy home')
+      .replace(/Rental #(\d+) bought/, 'Buy rental #$1')
+      .replace(/Shortfall: savings exhausted, .*/, 'Savings run out')
+      .replace(/Employment income starts at .*/, 'Start earning');
+  const head = '<tr><th>Year</th><th>Age</th><th>What happens</th><th>Money in</th><th>Spending</th><th>Savings</th><th>Net worth</th></tr>';
+  const body = rows
+    .map((r) => {
+      const d = r.deflator;
+      const moneyIn = (r.grossEarned + r.investmentReturn + Math.max(0, r.rentalCashFlow)) * d;
+      const ev = r.events.filter((e) => !hide.test(e)).map(tidy).join(', ');
+      const neg = r.investments < 0;
+      return `<tr class="${neg ? 'short' : ''}"><td>${r.year}</td><td>${r.age}</td><td class="ev">${esc(ev)}</td>` +
+        `<td>${money(moneyIn, true)}</td><td>${money(r.expenses.total * d, true)}</td>` +
+        `<td class="${neg ? 'neg' : ''}">${money(r.investments * d, true)}</td><td>${money(r.netWorth * d, true)}</td></tr>`;
+    })
+    .join('');
+  el('simple-years').innerHTML = `<table><thead>${head}</thead><tbody>${body}</tbody></table>`;
+}

@@ -176,3 +176,14 @@ body[data-mode='simple'] .hero-value { font-size: 44px; }
 .fact .tile-value { font-size: 20px; }
 .fact.bad .tile-value { color: var(--danger); }
 .health-next { margin: 14px 0 0; padding: 10px 12px; border-left: 3px solid var(--accent); background: var(--event-bg); border-radius: 0 6px 6px 0; }
+
+.simple-years { max-height: 75vh; }
+.simple-years td.ev, .simple-years th:nth-child(3) { text-align: left; white-space: normal; min-width: 140px; }
+.simple-years td.neg { color: var(--danger); font-weight: 600; }
+@media (max-width: 640px) {
+  .simple-years table { font-size: 11px; }
+  .simple-years th, .simple-years td { padding: 4px 5px; }
+  .simple-years td.ev { min-width: 0; }
+  .simple-years th:nth-child(4), .simple-years td:nth-child(4),
+  .simple-years th:nth-child(7), .simple-years td:nth-child(7) { display: none; }
+}

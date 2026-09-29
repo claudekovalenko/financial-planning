@@ -1,7 +1,7 @@
 import { freshPlan, health, periods, project, requiredIncome, withDefaults, type Plan } from './engine/index.ts';
 import { renderForm } from './ui/form.ts';
 import { createCharts } from './ui/charts.ts';
-import { planLabel, renderHealth, renderPeriods, renderSummary, renderTable } from './ui/results.ts';
+import { planLabel, renderHealth, renderPeriods, renderSimpleYears, renderSummary, renderTable } from './ui/results.ts';
 import { renderBudgetPanel } from './ui/budget-panel.ts';
 import { setupInstall } from './ui/install.ts';
 
@@ -131,6 +131,7 @@ function recompute() {
     const need = requiredIncome(plan);
     renderHealth(health(p), plan);
     renderSummary(p, need, real);
+    renderSimpleYears(p.rows);
     renderPeriods(periods(p));
     if (mode === 'full') {
       charts.update(p.rows, real);

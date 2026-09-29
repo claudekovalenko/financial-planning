@@ -39,6 +39,19 @@ The `main` branch deploys to GitHub Pages through
 with a 404. The site then lives at
 https://claudekovalenko.github.io/financial-planning/.
 
+## Hosting as an installable app
+
+A PWA needs an HTTPS host. The repo is private, so GitHub Pages needs a paid
+plan; Netlify and Vercel host private repos for free. Settings for both are
+committed (`netlify.toml`, `vercel.json`), so there is nothing to configure:
+
+- **Netlify:** app.netlify.com, "Add new site", "Import an existing project",
+  GitHub, pick `financial-planning`, Deploy.
+- **Vercel:** vercel.com/new, sign in with GitHub, import `financial-planning`,
+  Deploy.
+
+Every push to `main` redeploys automatically.
+
 ## Install it on your phone
 
 The site is a progressive web app: it installs to the home screen, opens
