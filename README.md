@@ -8,9 +8,14 @@ savings goal lands, and what is left for each child.
 
 Everything is an editable assumption. The app opens behind a password that
 also encrypts your plan on the device (AES-GCM, key derived with PBKDF2), so
-nothing readable is stored and nothing is sent anywhere. Plans can be
-exported and imported as JSON. There is no password recovery: "Forgot
-password" erases the saved plan and starts over. Actual spending is pulled
+nothing readable is stored and nothing is sent anywhere. There is no password
+recovery: "Forgot password" erases the saved plan and starts over.
+
+**Moving a plan between devices.** "Save encrypted copy" saves the scrambled
+plan as a file (on iPhone, choose "Save to Files" and iCloud Drive). On the
+other device, "Load copy" opens that file with the password it was saved
+under. The copy is useless without the password, and no readable export
+exists. Actual spending is pulled
 from the budgeting app through a small JSON contract.
 
 ## Run it

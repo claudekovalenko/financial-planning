@@ -38,8 +38,8 @@
       <div class="actions">
         <button id="btn-mode" type="button">Show all details</button>
         <label class="toggle full-only"><input id="real-toggle" type="checkbox" /> Show today's dollars</label>
-        <button id="btn-export" type="button">Export plan</button>
-        <label class="file-btn">Import plan<input id="plan-file" type="file" accept="application/json" hidden /></label>
+        <button id="btn-export" type="button">Save encrypted copy</button>
+        <label class="file-btn">Load copy<input id="plan-file" type="file" accept="application/json,.json" hidden /></label>
         <button id="btn-reset" type="button">Reset to baseline</button>
         <button id="btn-lock" type="button">Lock</button>
       </div>
@@ -124,14 +124,29 @@
     </div>
     <div id="export-panel" class="export-panel" hidden>
       <div class="card">
-        <h2>Plan JSON</h2>
-        <p class="muted">Copy this or save it as a file, then use "Import plan" to load it later or to compare scenarios.</p>
+        <h2>Encrypted copy</h2>
+        <p id="export-status" class="muted">Your encrypted copy is saving. To move your plan to another device, save it to iCloud Drive, then use "Load copy" there and enter your password.</p>
+        <p class="muted">If no file was saved, copy this text into a note or file named <code>financial-plan.json</code>. It is scrambled and opens only with your password.</p>
         <textarea id="export-text" rows="14" spellcheck="false"></textarea>
         <div class="actions">
           <button id="btn-copy" type="button" class="primary">Copy to clipboard</button>
           <button id="btn-export-close" type="button">Close</button>
         </div>
       </div>
+    </div>
+    <div id="open-copy-panel" class="export-panel" hidden>
+      <form id="open-copy-form" class="card" novalidate>
+        <h2>Open encrypted copy</h2>
+        <p id="open-copy-intro" class="muted">Enter the password this copy was saved with. Loading it replaces the plan on this device.</p>
+        <label class="lock-field" for="open-copy-password">Password
+          <input id="open-copy-password" type="password" autocomplete="current-password" />
+        </label>
+        <p id="open-copy-error" class="error" role="alert"></p>
+        <div class="actions">
+          <button id="open-copy-submit" type="submit" class="primary">Load plan</button>
+          <button id="open-copy-cancel" type="button">Cancel</button>
+        </div>
+      </form>
     </div>
     <script type="module" src="./src/main.ts"></script>
   </body>

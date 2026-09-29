@@ -202,3 +202,7 @@ body.locked > :not(#lock-screen) { display: none !important; }
 .link-btn { background: none; border: none; color: var(--text-muted); font-size: 13px; padding: 4px; text-decoration: underline; }
 .link-btn:hover { background: none; color: var(--text-primary); }
 .lock-card .error:empty { display: none; }
+
+.export-panel form.card { width: min(420px, 100%); display: flex; flex-direction: column; gap: 10px; }
+.export-panel form.card h2, .export-panel form.card p { margin: 0; }
+.export-panel .error:empty { display: none; }

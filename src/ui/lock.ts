@@ -3,13 +3,17 @@ import { isSealed, newKey, seal, unseal, WrongPassword, type Sealed, type VaultK
 const VAULT_KEY = 'financial-planning.vault';
 /** Pre-login versions stored the plan in plain text under this key. */
 const LEGACY_KEY = 'financial-planning.plan';
-const MIN_LENGTH = 6;
+const MIN_LENGTH = 8;
 
 export interface Session {
   /** Decrypted plan JSON, or null when there is nothing saved yet. */
   planJson: string | null;
   /** Encrypt and store the plan. Calls are serialized; the latest wins. */
   save(json: string): void;
+  /** The most recently stored encrypted plan, for saving a copy. */
+  latest(): Sealed | null;
+  /** Encrypt a plan now with this device's key. */
+  sealNow(json: string): Promise<Sealed>;
 }
 
 function read(key: string): string | null {
@@ -60,7 +64,7 @@ export function unlock(): Promise<Session> {
       const creating = vault === null;
       title.textContent = creating ? 'Create a password' : 'Enter your password';
       intro.textContent = creating
-        ? 'This password opens the planner and encrypts your numbers on this device. There is no way to recover it, so pick one you will remember.'
+        ? 'This password opens the planner and encrypts your numbers on this device. Use four or more random words, like "river candle orbit maple". It cannot be recovered, so keep it somewhere safe.'
         : 'Your plan on this device is encrypted with it.';
       confirmRow.hidden = !creating;
       confirm.required = creating;
@@ -96,28 +100,36 @@ export function unlock(): Promise<Session> {
       try {
         let key: VaultKey;
         let planJson: string | null;
+        let latest: Sealed;
         if (vault === null) {
-          if (password.length < MIN_LENGTH) throw new Error(`Use at least ${MIN_LENGTH} characters.`);
+          if (password.length < MIN_LENGTH) throw new Error(`Use at least ${MIN_LENGTH} characters. Four random words work well.`);
           if (password !== confirm.value) throw new Error('The two passwords do not match.');
           key = await newKey(password);
           planJson = read(LEGACY_KEY);
-          write(VAULT_KEY, JSON.stringify(await seal(key, planJson ?? 'null')));
+          latest = await seal(key, planJson ?? 'null');
+          write(VAULT_KEY, JSON.stringify(latest));
           write(LEGACY_KEY, null);
         } else {
           const opened = await unseal(vault, password);
           key = opened.key;
           planJson = opened.text === 'null' ? null : opened.text;
+          latest = vault;
         }
 
         let chain = Promise.resolve();
         const save = (json: string) => {
-          chain = chain.then(async () => write(VAULT_KEY, JSON.stringify(await seal(key, json)))).catch(() => undefined);
+          chain = chain
+            .then(async () => {
+              latest = await seal(key, json);
+              write(VAULT_KEY, JSON.stringify(latest));
+            })
+            .catch(() => undefined);
         };
         screen.hidden = true;
         document.body.classList.remove('locked');
         pw.value = '';
         confirm.value = '';
-        resolve({ planJson, save });
+        resolve({ planJson, save, latest: () => latest, sealNow: (json) => seal(key, json) });
       } catch (e) {
         error.textContent = e instanceof WrongPassword ? e.message : (e as Error).message;
         pw.select();
