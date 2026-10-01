@@ -3,7 +3,7 @@ import type { Projection } from './types.ts';
 /** Where you stand today: income by source, spending, the gap, and how long savings last. */
 export interface Health {
   /** Monthly income today by source. */
-  income: { employment: number; business: number; spouse: number; investments: number; rental: number; total: number };
+  income: { employment: number; business: number; support: number; spouse: number; investments: number; rental: number; total: number };
   /** Monthly spending today by bucket. */
   spending: { living: number; housing: number; giving: number; travel: number; children: number; total: number };
   /** Income minus spending per month today. Negative = burning savings. */
@@ -26,12 +26,13 @@ export function health(p: Projection): Health {
   const income = {
     employment: now.salary / 12,
     business: plan.income.otherIncome / 12,
+    support: now.support / 12,
     spouse: now.spouseIncome / 12,
     investments: investmentsPerMonth,
     rental: Math.max(0, now.rentalCashFlow) / 12,
     total: 0,
   };
-  income.total = income.employment + income.business + income.spouse + income.investments + income.rental;
+  income.total = income.employment + income.business + income.support + income.spouse + income.investments + income.rental;
   const e = now.expenses;
   const spending = {
     living: e.living / 12,
@@ -41,7 +42,7 @@ export function health(p: Projection): Health {
     children: (e.children + e.launchFund) / 12,
     total: e.total / 12,
   };
-  const taxOnEarned = ((now.salary + plan.income.otherIncome + now.spouseIncome) * plan.income.effectiveTaxRate) / 12;
+  const taxOnEarned = ((now.salary + plan.income.otherIncome + now.support + now.spouseIncome) * plan.income.effectiveTaxRate) / 12;
   const gapPerMonth = income.total - taxOnEarned - spending.total;
   const firstShort = summary.shortfallYears[0];
   return {

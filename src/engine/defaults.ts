@@ -30,6 +30,12 @@ export const defaultPlan: Plan = {
     retireAge: 67,
     retirementIncome: 30_000,
     otherIncome: 0,
+    support: {
+      monthly: 0,
+      startAge: 31,
+      adminFeeRate: 0.1,
+      avgGift: 100,
+    },
     spouse: {
       annualIncome: 0,
       stopsAtFirstChild: true,

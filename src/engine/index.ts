@@ -8,3 +8,4 @@ export * from './health.ts';
 export * from './investing.ts';
 export * from './strategies.ts';
 export * from './legacy.ts';
+export * from './gap.ts';

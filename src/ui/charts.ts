@@ -188,7 +188,16 @@ export function createLegacyChart(canvas: HTMLCanvasElement): {
     // Slots: goal = 1 (blue), stretch = 3 (aqua), current = 2 (orange); fixed per role.
     const slots = [0, 2];
     const datasets = targets.map((t, i) => ({ ...line(t.label, slots[i] ?? 0, i === 0), data: today(t.rows) }));
-    datasets.push({ ...line('At your current spending', 1), data: today(current) });
+    // Mark the year cash runs out: the line keeps counting houses that would have to be sold.
+    const outIdx = current.findIndex((r) => r.investments < 0);
+    const cur: any = { ...line(outIdx >= 0 ? `At your current spending (cash runs out at ${current[outIdx].age})` : 'At your current spending', 1), data: today(current) };
+    if (outIdx >= 0) {
+      cur.pointRadius = current.map((_, i) => (i === outIdx ? 6 : 0));
+      cur.pointBackgroundColor = cur.borderColor;
+      cur.pointBorderColor = surface();
+      cur.pointBorderWidth = 2;
+    }
+    datasets.push(cur);
     const opts = baseOptions(true);
     opts.scales.x.ticks = { ...opts.scales.x.ticks, callback: (_v: unknown, i: number) => `age ${labels[i]}` } as typeof opts.scales.x.ticks;
     opts.plugins.tooltip.callbacks.title = (items: any[]) => `Age ${items[0]?.label ?? ''}`;

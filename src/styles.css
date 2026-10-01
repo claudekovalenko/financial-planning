@@ -255,3 +255,19 @@ body.locked > :not(#lock-screen) { display: none !important; }
 
 .legacy-homes { margin: 0; padding-top: 10px; border-top: 1px solid var(--grid); color: var(--text-secondary); font-size: 13px; }
 .legacy-homes b { color: var(--text-primary); }
+
+.gap-intro { margin: 0 0 12px; color: var(--text-secondary); max-width: 70ch; }
+.gap-intro b { color: var(--text-primary); }
+.gap-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+.gap-option { border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; background: var(--surface-0); min-width: 0; }
+.gap-option h3 { margin: 0 0 8px; font-size: 14px; }
+.gap-option p { margin: 0 0 8px; }
+.gap-need { display: flex; flex-direction: column; gap: 2px; padding: 8px 0; border-top: 1px solid var(--grid); }
+.gap-need:first-child { border-top: none; padding-top: 0; }
+.gap-need .big { font-size: 24px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.gap-need .what { font-size: 13px; color: var(--text-secondary); }
+.gap-mixes { max-height: none; overflow-x: auto; }
+.gap-mixes td:first-child, .gap-mixes th:first-child { text-align: left; white-space: normal; }
+.gap-mixes th { white-space: normal; vertical-align: bottom; }
+.gap-mixes tr.current td { background: var(--event-bg); }
+.gap-mixes button { padding: 3px 8px; font-size: 12px; }

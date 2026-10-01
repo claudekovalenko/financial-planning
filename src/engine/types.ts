@@ -27,8 +27,19 @@ export interface Income {
   retireAge: number;
   /** Gross annual retirement income from that age (pension, social security), today's dollars. */
   retirementIncome: number;
-  /** Business, ministry or side income per year, today's dollars, from now on. */
+  /** Business or side income per year, today's dollars, from now on. */
   otherIncome: number;
+  /** Ministry support raised from donors. */
+  support: {
+    /** What donors give per month, today's dollars; rises with inflation. */
+    monthly: number;
+    /** Age the support starts. It continues until retirement. */
+    startAge: number;
+    /** Share kept by the sending organization (admin fee). */
+    adminFeeRate: number;
+    /** Average monthly gift per supporter, for counting supporters. */
+    avgGift: number;
+  };
   spouse: {
     /** Spouse gross annual income (today's dollars) once married. */
     annualIncome: number;
@@ -206,6 +217,8 @@ export interface YearRow {
   salary: number;
   spouseIncome: number;
   otherIncome: number;
+  /** Ministry support received after the admin fee, before tax. */
+  support: number;
   grossEarned: number;
   taxes: number;
   netEarned: number;

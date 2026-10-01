@@ -1,8 +1,8 @@
-import { applyStrategy, compareStrategies, freshPlan, health, investmentTargets, legacyAnswer, periods, project, requiredIncome, withDefaults, type LegacyAnswer, type Plan } from './engine/index.ts';
+import { applyMix, applyStrategy, compareMixes, compareStrategies, gapAnswer, freshPlan, health, investmentTargets, legacyAnswer, periods, project, requiredIncome, withDefaults, type LegacyAnswer, type Plan } from './engine/index.ts';
 import { renderForm } from './ui/form.ts';
 import { createCharts, createLegacyChart } from './ui/charts.ts';
 import { parseSaved, renderVersions, type Version } from './ui/versions.ts';
-import { planLabel, renderHealth, renderInvesting, renderLegacy, renderPeriods, renderSimpleYears, renderStrategies, renderSummary, renderTable } from './ui/results.ts';
+import { planLabel, renderGap, renderHealth, renderInvesting, renderLegacy, renderPeriods, renderSimpleYears, renderStrategies, renderSummary, renderTable } from './ui/results.ts';
 import { renderBudgetPanel } from './ui/budget-panel.ts';
 import { setupInstall } from './ui/install.ts';
 import { lockNow, unlock, type Session } from './ui/lock.ts';
@@ -257,6 +257,7 @@ function start(session: Session): void {
         ],
         a.current.projection.rows,
       );
+      renderGap(gapAnswer(plan), compareMixes(plan), plan.savings.returnRate, plan.legacy.perChild, (id) => replacePlan(applyMix(plan, id)));
       renderSimpleYears(a.current.projection.rows);
       showVersions();
       $('plan-label').textContent = planLabel(plan);

@@ -38,6 +38,15 @@ leave each child a chosen amount, in today's dollars, when the plan ends?
   grandchildren, house gifts) and your life today (savings, spending, rent,
   age, marriage age, children, plan-to age). Everything else is under
   "Show all details".
+- **Close the gap** shows what would cover a shortfall. *Ministry support*:
+  the total monthly support to raise from donors (rising with inflation,
+  after the sending organization's admin fee, taxed like income) to never
+  run short and to reach the legacy goal, with the number of supporters at
+  your average gift. *Investment mix*: a stock and bond index-fund mix from
+  40% to 100% stocks, its long-run expected return (stocks 7.5%, bonds 4.5%
+  a year before inflation), when cash runs out, and the support still
+  needed with each. "Use" switches the plan to that mix. On the main screen
+  "runs out" means cash hits zero before any rental is sold.
 - **Versions**: save the current numbers, change them, save again, and
   compare. "Open" returns to a saved version. Versions are stored with the
   plan, encrypted on the device, and travel with encrypted copies.

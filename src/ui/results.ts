@@ -1,4 +1,5 @@
-import type { Health, InvestmentTargets, LegacyAnswer, Period, Plan, Projection, RequiredIncome, StrategyResult, YearRow } from '../engine/index.ts';
+import { BOND_RETURN, STOCK_RETURN } from '../engine/index.ts';
+import type { GapAnswer, Health, InvestmentTargets, LegacyAnswer, MixResult, Period, Plan, Projection, RequiredIncome, StrategyResult, YearRow } from '../engine/index.ts';
 import { money, pct } from './format.ts';
 
 const el = (id: string) => document.getElementById(id)!;
@@ -142,6 +143,7 @@ export function renderHealth(h: Health, plan: Plan): void {
         <table>
           ${row('Employment', h.income.employment)}
           ${row('Business / side', h.income.business)}
+          ${h.income.support ? row('Ministry support (after fee)', h.income.support) : ''}
           ${row('Investments (' + (plan.savings.returnRate * 100).toFixed(1) + '% on savings)', h.income.investments)}
           ${row('Rentals', h.income.rental)}
           ${h.income.spouse ? row('Spouse', h.income.spouse) : ''}
@@ -266,4 +268,40 @@ export function renderLegacy(a: LegacyAnswer): void {
       : L.housesGifted > 0
         ? `<b>${homes} houses</b> go to your family: ${L.housesGifted} given to your children as they start out, and ${L.housesAtEnd} more at your passing, including your home. That is about ${(homes / kids).toFixed(1)} per child.`
         : `<b>${homes} houses</b> pass to your children, ${L.housesAtEnd - (base.rows.at(-1)!.homeValue > 0 ? 1 : 0)} rentals and your home. That is about ${(homes / kids).toFixed(1)} per child, each one able to house or support a family.`;
+}
+
+export function renderGap(g: GapAnswer, mixes: MixResult[], currentReturn: number, goal: number, onUseMix: (id: string) => void): void {
+  const need = (n: { monthly: number | null; supporters: number | null }) =>
+    n.monthly === null ? 'more than $100,000/mo' : n.monthly === 0 ? 'none' : `${money(n.monthly)}/mo`;
+  el('gap-intro').innerHTML =
+    g.runsOutAge === null
+      ? `At your current spending your savings <b>never run out</b>. Support or a different mix would add to what you leave behind.`
+      : `At your current spending your savings <b>run out at ${g.runsOutAge}</b>. Here is what would cover it.`;
+
+  const more = (total: number | null) =>
+    total === null || g.raised <= 0 ? '' : total <= g.raised ? ' You have raised enough.' : ` You have ${money(g.raised)}/mo, so ${money(total - g.raised)}/mo more.`;
+  const people = (n: { supporters: number | null }) =>
+    n.supporters ? `about ${n.supporters.toLocaleString('en-US')} supporters giving ${money(g.avgGift)} a month` : '';
+  const block = (title: string, n: { monthly: number | null; supporters: number | null }) =>
+    `<div class="gap-need"><div class="what">${title}</div><div class="big">${need(n)}</div>` +
+    `<div class="what">${n.monthly ? people(n) + '.' : ''}${more(n.monthly)}</div></div>`;
+  const same = g.toNeverRunShort.monthly === g.toReachGoal.monthly;
+  el('gap-support').innerHTML =
+    (same
+      ? block(`To never run short and leave each child at least ${money(goal)}`, g.toReachGoal)
+      : block('To never run short', g.toNeverRunShort) + block(`To also leave each child ${money(goal)}`, g.toReachGoal)) +
+    `<p class="muted">Total support from donors, starting at age ${g.startAge} and rising with inflation until you retire. Assumes a ${Math.round(g.adminFeeRate * 100)}% admin fee and that support is taxed like income.</p>`;
+
+  const head = `<tr><th>Mix, rest in bonds</th><th>Return a year</th><th>Cash runs out</th><th>Support needed</th><th></th></tr>`;
+  const body = mixes
+    .map((m) => {
+      const cur = Math.abs(m.returnRate - currentReturn) < 0.0005;
+      return `<tr class="${cur ? 'current' : ''}"><td>${m.name}</td><td>${m.label}</td><td>${m.runsOutAge === null ? 'never' : 'age ' + m.runsOutAge}</td>` +
+        `<td>${need(m.toReachGoal)}</td><td>${cur ? '<span class="muted">current</span>' : `<button type="button" data-mix="${m.id}">Use</button>`}</td></tr>`;
+    })
+    .join('');
+  const root = el('gap-mixes');
+  root.innerHTML = `<table><thead>${head}</thead><tbody>${body}</tbody></table>` +
+    `<p class="muted">"Support needed" is the total monthly support to never run short and reach your goal. Assumes stocks earn ${(STOCK_RETURN * 100).toFixed(1)}% and bonds ${(BOND_RETURN * 100).toFixed(1)}% a year on average before inflation. Your plan uses ${(currentReturn * 100).toFixed(1)}%.</p>`;
+  root.querySelectorAll<HTMLButtonElement>('button[data-mix]').forEach((b) => b.addEventListener('click', () => onUseMix(b.dataset.mix!)));
 }

@@ -95,7 +95,10 @@ function run(plan: Plan, provision: number | null, provisionAuto: boolean): Proj
     const spouseWorks = married && !retired && !(income.spouse.stopsAtFirstChild && firstChildBorn);
     const spouseIncome = spouseWorks ? income.spouse.annualIncome * infl : 0;
     const otherIncome = income.otherIncome * infl;
-    const grossEarned = salary + retirementIncome + spouseIncome + otherIncome;
+    const sup = income.support;
+    const support = !retired && age >= sup.startAge ? sup.monthly * 12 * infl * (1 - sup.adminFeeRate) : 0;
+    if (age === sup.startAge && sup.monthly > 0) events.push(`Ministry support starts at ${fmt(sup.monthly * infl)}/mo`);
+    const grossEarned = salary + retirementIncome + spouseIncome + otherIncome + support;
     const taxes = grossEarned * income.effectiveTaxRate;
     const netEarned = grossEarned - taxes;
 
@@ -297,6 +300,7 @@ function run(plan: Plan, provision: number | null, provisionAuto: boolean): Proj
       salary,
       spouseIncome,
       otherIncome: otherIncome + retirementIncome,
+      support,
       grossEarned,
       taxes,
       netEarned,

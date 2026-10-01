@@ -25,7 +25,7 @@ export interface LegacyAnswer {
   stretch: LevelAnswer;
   grandchildren: number;
   perGrandchild: number;
-  /** At spending as entered. */
+  /** At spending as entered, without forced rental sales. */
   current: {
     spendNowPerMonth: number;
     spendPeakPerMonth: number;
@@ -87,7 +87,8 @@ export function legacyAnswer(plan: Plan): LegacyAnswer {
   const goal = level(plan, plan.legacy.perChild);
   const stretch =
     plan.legacy.stretchPerChild > plan.legacy.perChild ? level(plan, plan.legacy.stretchPerChild) : { ...goal };
-  const cur = project(plan);
+  // "Runs out" on the main screen means savings hit zero before any rental is sold.
+  const cur = project(prepared(plan));
   const firstShort = cur.summary.shortfallYears[0];
   return {
     goal,
