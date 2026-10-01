@@ -1,5 +1,5 @@
 import { BOND_RETURN, STOCK_RETURN } from '../engine/index.ts';
-import type { GapAnswer, Health, InvestmentTargets, LegacyAnswer, MixResult, Period, Plan, Projection, RequiredIncome, StrategyResult, YearRow } from '../engine/index.ts';
+import type { GapAnswer, GivingLevel, Health, RealEstateResult, InvestmentTargets, LegacyAnswer, MixResult, Period, Plan, Projection, RequiredIncome, StrategyResult, YearRow } from '../engine/index.ts';
 import { money, pct } from './format.ts';
 
 const el = (id: string) => document.getElementById(id)!;
@@ -304,4 +304,40 @@ export function renderGap(g: GapAnswer, mixes: MixResult[], currentReturn: numbe
   root.innerHTML = `<table><thead>${head}</thead><tbody>${body}</tbody></table>` +
     `<p class="muted">"Support needed" is the total monthly support to never run short and reach your goal. Assumes stocks earn ${(STOCK_RETURN * 100).toFixed(1)}% and bonds ${(BOND_RETURN * 100).toFixed(1)}% a year on average before inflation. Your plan uses ${(currentReturn * 100).toFixed(1)}%.</p>`;
   root.querySelectorAll<HTMLButtonElement>('button[data-mix]').forEach((b) => b.addEventListener('click', () => onUseMix(b.dataset.mix!)));
+}
+
+export function renderRealEstate(rows: RealEstateResult[], onUse: (type: string) => void): void {
+  const need = (n: { monthly: number | null }) => (n.monthly === null ? 'over $100,000/mo' : n.monthly === 0 ? 'none' : `${money(n.monthly)}/mo`);
+  const best = rows.reduce((b, r) => ((r.supportForGoal.monthly ?? Infinity) < (b.supportForGoal.monthly ?? Infinity) ? r : b), rows[0]);
+  const head = '<tr><th>Property</th><th>Price</th><th>Cash to buy one</th><th>Rent or bookings / mo</th><th>Cash flow / mo after mortgage</th><th>Cash runs out</th><th>Support needed</th><th></th></tr>';
+  const body = rows
+    .map((r) => `<tr class="${r.current ? 'current' : ''}"><td><b>${r.type.name}</b>${r.type.id === best.type.id ? ' <span class="muted">Needs the least support</span>' : ''}<span class="muted">${r.type.detail}</span></td>` +
+      `<td data-label="Price">${money(r.price)}</td>` +
+      `<td data-label="Cash to buy one">${money(r.cashPerProperty)}</td>` +
+      `<td data-label="Rent or bookings / mo">${money(r.incomePerMonth)}</td>` +
+      `<td data-label="Cash flow / mo" class="${r.cashFlowPerMonth < 0 ? 'neg' : ''}">${money(r.cashFlowPerMonth)} <span class="muted">${(r.cashOnCash * 100).toFixed(1)}% on cash</span></td>` +
+      `<td data-label="Cash runs out">${r.runsOutAge === null ? 'never' : 'age ' + r.runsOutAge}</td>` +
+      `<td data-label="Support needed">${need(r.supportForGoal)}</td>` +
+      `<td>${r.current ? '<span class="muted">current</span>' : `<button type="button" data-re="${r.type.id}">Use</button>`}</td></tr>`)
+    .join('');
+  const root = el('gap-realestate');
+  root.innerHTML = `<table><thead>${head}</thead><tbody>${body}</tbody></table>`;
+  root.querySelectorAll<HTMLButtonElement>('button[data-re]').forEach((b) => b.addEventListener('click', () => onUse(b.dataset.re!)));
+}
+
+export function renderGenerosity(levels: GivingLevel[], onUse: (rate: number) => void): void {
+  const need = (n: { monthly: number | null }) => (n.monthly === null ? 'over $100,000/mo' : n.monthly === 0 ? 'none' : `${money(n.monthly)}/mo`);
+  const head = '<tr><th>Give</th><th>Giving / mo today</th><th>Live on / mo today</th><th>Given over your life</th><th>Support needed</th><th></th></tr>';
+  const body = levels
+    .map((g) => `<tr class="${g.current ? 'current' : ''}"><td><b>${Math.round(g.rate * 100)}%</b></td>` +
+      `<td data-label="Giving / mo today">${money(g.givePerMonth)}</td>` +
+      `<td data-label="Live on / mo today">${g.liveOnPerMonth === null ? 'not reachable' : money(g.liveOnPerMonth)}</td>` +
+      `<td data-label="Given over your life">${money(g.lifetimeToday)}</td>` +
+      `<td data-label="Support needed">${need(g.supportForGoal)}</td>` +
+      `<td>${g.current ? '<span class="muted">current</span>' : `<button type="button" data-rate="${g.rate}">Use</button>`}</td></tr>`)
+    .join('');
+  const root = el('generosity');
+  root.innerHTML = `<table><thead>${head}</thead><tbody>${body}</tbody></table>` +
+    '<p class="muted">Today\'s dollars. "Support needed" is the total monthly ministry support to never run short and reach your goal at your planned spending.</p>';
+  root.querySelectorAll<HTMLButtonElement>('button[data-rate]').forEach((b) => b.addEventListener('click', () => onUse(Number(b.dataset.rate))));
 }

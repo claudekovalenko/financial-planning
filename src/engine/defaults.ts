@@ -92,6 +92,8 @@ export const defaultPlan: Plan = {
     appreciation: 0.03,
     rentGrowth: 0.03,
     reserveMonths: 6,
+    propertyType: 'custom',
+    market: 'custom',
     sellWhenShort: true,
     sellingCostRate: 0.07,
     capitalGainsRate: 0.2,

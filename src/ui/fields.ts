@@ -28,6 +28,7 @@ export const sections: Section[] = [
       { path: 'legacy.perGrandchild', label: 'Set aside for each grandchild (today $)', kind: 'money', step: 5000, help: '0 to leave it all to your children.' },
       { path: 'legacy.grandchildren', label: 'Grandchildren you expect', kind: 'int' },
       { path: 'legacy.giftHouseAtChildAge', label: 'Give each child a house at age', kind: 'nullableAge', help: 'A rental house when they start their own family. Blank = houses pass on at your passing.' },
+      { path: 'spending.givingRate', label: 'Give at least (share of all income)', kind: 'percent', help: 'Support, rental income and investment returns.' },
     ],
   },
   {

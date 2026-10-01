@@ -9,3 +9,5 @@ export * from './investing.ts';
 export * from './strategies.ts';
 export * from './legacy.ts';
 export * from './gap.ts';
+export * from './realestate.ts';
+export * from './generosity.ts';

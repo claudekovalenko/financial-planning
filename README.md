@@ -45,8 +45,19 @@ leave each child a chosen amount, in today's dollars, when the plan ends?
   your average gift. *Investment mix*: a stock and bond index-fund mix from
   40% to 100% stocks, its long-run expected return (stocks 7.5%, bonds 4.5%
   a year before inflation), when cash runs out, and the support still
-  needed with each. "Use" switches the plan to that mix. On the main screen
+  needed with each. "Use" switches the plan to that mix. *Real estate
+  approach*: rental houses, small multiplexes (2-4 units) and Airbnbs in an
+  affordable, typical or pricey market, with one property's first-year
+  price, cash to buy, rent, cash flow after the mortgage and cash-on-cash
+  return, plus when cash runs out and the support needed if the whole plan
+  used that kind of property. Starting points come from 2025-2026 market
+  data (ATTOM rental yields, Arbor small multifamily cap rates, AirDNA
+  short-term rental outlook) and are meant to be checked locally. On the main screen
   "runs out" means cash hits zero before any rental is sold.
+- **Generosity** compares giving 10%, 20% and 30% of everything that comes
+  in: giving per month, what the household lives on while still reaching
+  the legacy goal, lifetime giving and the support needed. "Use" sets the
+  giving level.
 - **Versions**: save the current numbers, change them, save again, and
   compare. "Open" returns to a saved version. Versions are stored with the
   plan, encrypted on the device, and travel with encrypted copies.

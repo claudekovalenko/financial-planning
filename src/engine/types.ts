@@ -135,6 +135,9 @@ export interface Rentals {
   rentGrowth: number;
   /** Months of household expenses to keep in cash before a purchase is allowed. */
   reserveMonths: number;
+  /** Which real estate approach the numbers came from ('custom' = your own). */
+  propertyType: 'house' | 'multiplex' | 'airbnb' | 'custom';
+  market: 'affordable' | 'average' | 'pricey' | 'custom';
   /** When savings would run out, sell rentals (largest net proceeds first) until the cash reserve is refilled. */
   sellWhenShort: boolean;
   /** Agent fees and closing costs on a sale, as a share of the sale price. */

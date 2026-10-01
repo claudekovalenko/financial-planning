@@ -1,8 +1,8 @@
-import { applyMix, applyStrategy, compareMixes, compareStrategies, gapAnswer, freshPlan, health, investmentTargets, legacyAnswer, periods, project, requiredIncome, withDefaults, type LegacyAnswer, type Plan } from './engine/index.ts';
+import { applyMix, applyRealEstate, applyStrategy, compareGiving, compareMixes, compareRealEstate, compareStrategies, gapAnswer, type Market, type PropertyType, freshPlan, health, investmentTargets, legacyAnswer, periods, project, requiredIncome, withDefaults, type LegacyAnswer, type Plan } from './engine/index.ts';
 import { renderForm } from './ui/form.ts';
 import { createCharts, createLegacyChart } from './ui/charts.ts';
 import { parseSaved, renderVersions, type Version } from './ui/versions.ts';
-import { planLabel, renderGap, renderHealth, renderInvesting, renderLegacy, renderPeriods, renderSimpleYears, renderStrategies, renderSummary, renderTable } from './ui/results.ts';
+import { planLabel, renderGap, renderGenerosity, renderHealth, renderRealEstate, renderInvesting, renderLegacy, renderPeriods, renderSimpleYears, renderStrategies, renderSummary, renderTable } from './ui/results.ts';
 import { renderBudgetPanel } from './ui/budget-panel.ts';
 import { setupInstall } from './ui/install.ts';
 import { lockNow, unlock, type Session } from './ui/lock.ts';
@@ -26,6 +26,13 @@ function start(session: Session): void {
   let lastAnswer: LegacyAnswer | null = null;
   const legacyChart = createLegacyChart($('chart-legacy'));
   const persist = () => session.save(JSON.stringify({ plan, versions }));
+  const marketSelect = $<HTMLSelectElement>('re-market');
+  let reMarket: Market['id'] = plan.rentals.market === 'custom' ? 'affordable' : plan.rentals.market;
+  marketSelect.value = reMarket;
+  marketSelect.addEventListener('change', () => {
+    reMarket = marketSelect.value as Market['id'];
+    recompute();
+  });
   let real = readPref(REAL_KEY) === 'true';
   let mode: 'simple' | 'full' = readPref(MODE_KEY) === 'full' ? 'full' : 'simple';
 
@@ -258,6 +265,12 @@ function start(session: Session): void {
         a.current.projection.rows,
       );
       renderGap(gapAnswer(plan), compareMixes(plan), plan.savings.returnRate, plan.legacy.perChild, (id) => replacePlan(applyMix(plan, id)));
+      renderRealEstate(compareRealEstate(plan, reMarket), (type) => replacePlan(applyRealEstate(plan, type as PropertyType['id'], reMarket)));
+      renderGenerosity(compareGiving(plan), (rate) => {
+        const next = structuredClone(plan);
+        next.spending.givingRate = rate;
+        replacePlan(next);
+      });
       renderSimpleYears(a.current.projection.rows);
       showVersions();
       $('plan-label').textContent = planLabel(plan);

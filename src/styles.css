@@ -271,3 +271,27 @@ body.locked > :not(#lock-screen) { display: none !important; }
 .gap-mixes th { white-space: normal; vertical-align: bottom; }
 .gap-mixes tr.current td { background: var(--event-bg); }
 .gap-mixes button { padding: 3px 8px; font-size: 12px; }
+
+.gap-wide { grid-column: 1 / -1; }
+.gap-re-head { display: flex; justify-content: space-between; align-items: center; gap: 8px 16px; flex-wrap: wrap; margin-bottom: 6px; }
+.gap-re-head h3 { margin: 0; }
+.re-market { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-secondary); }
+.re-market select { min-width: 0; font: inherit; padding: 5px 8px; border: 1px solid var(--border); border-radius: 6px; background: var(--surface-1); color: var(--text-primary); max-width: 100%; }
+.gap-re, .generosity { max-height: none; overflow-x: auto; }
+.gap-re td:first-child, .gap-re th:first-child, .generosity td:first-child, .generosity th:first-child { text-align: left; white-space: normal; }
+.gap-re td .muted { display: block; font-size: 11px; }
+.gap-re th, .generosity th { white-space: normal; vertical-align: bottom; }
+.gap-re tr.current td, .generosity tr.current td { background: var(--event-bg); }
+.gap-re td.neg { color: var(--danger); }
+.gap-re button, .generosity button { padding: 3px 8px; font-size: 12px; }
+@media (max-width: 640px) {
+  .gap-re thead, .generosity thead { display: none; }
+  .gap-re table, .gap-re tbody, .gap-re tr, .gap-re td,
+  .generosity table, .generosity tbody, .generosity tr, .generosity td { display: block; width: 100%; text-align: left; white-space: normal; }
+  .gap-re tr, .generosity tr { padding: 8px 0; border-bottom: 1px solid var(--grid); }
+  .gap-re td, .generosity td { border: none; padding: 2px 8px; }
+  .gap-re td[data-label], .generosity td[data-label] { display: flex; justify-content: space-between; gap: 12px; }
+  .gap-re td[data-label]::before, .generosity td[data-label]::before { content: attr(data-label); color: var(--text-muted); }
+}
+
+.gap-re-head > * { min-width: 0; }
