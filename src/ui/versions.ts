@@ -17,6 +17,8 @@ export interface Version {
     currentRunsOutAge: number | null;
     savings: number;
     houses?: number;
+    coverageNow?: number;
+    freeForGoodAge?: number | null;
   };
 }
 
@@ -58,9 +60,13 @@ export function renderVersions(
         f.stretchSpendNowPerMonth && f.spendNowPerMonth && stretch ? `${money(f.stretchSpendNowPerMonth)} to ${money(f.spendNowPerMonth)}` : money(f.spendNowPerMonth ?? 0);
       const spend = f.spendNowPerMonth === null ? 'goal not reachable' : `spend ${spendNow}/mo now`;
       const houses = f.houses ? ` · ${f.houses} houses to the family` : '';
+      const free =
+        f.coverageNow === undefined
+          ? ''
+          : `passive income covers ${Math.round(f.coverageNow * 100)}% now${f.freeForGoodAge ? `, free for good at ${f.freeForGoodAge}` : ''} · `;
       const lasts = f.currentRunsOutAge === null ? 'current spending never runs out' : `current spending runs out at ${f.currentRunsOutAge}`;
       return `<li class="${v.id === activeId ? 'active' : ''}"><div class="v-name">${esc(v.name)}</div>` +
-        `<div class="v-facts">Leave ${money(f.leavePerChild)}${stretch} each · ${spend} · ${lasts}${houses} · savings ${money(f.savings)}</div>` +
+        `<div class="v-facts">${free}Leave ${money(f.leavePerChild)}${stretch} each · ${spend} · ${lasts}${houses} · savings ${money(f.savings)}</div>` +
         `<div class="v-actions"><button type="button" data-open="${v.id}">Open</button><button type="button" data-remove="${v.id}">Delete</button></div></li>`;
     })
     .join('')}</ul>`;

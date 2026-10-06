@@ -1,8 +1,8 @@
-import { applyMix, applyRealEstate, applyStrategy, compareGiving, compareMixes, compareRealEstate, compareStrategies, gapAnswer, type Market, type PropertyType, freshPlan, health, investmentTargets, legacyAnswer, periods, project, requiredIncome, withDefaults, type LegacyAnswer, type Plan } from './engine/index.ts';
+import { applyMix, applyRealEstate, applyStrategy, compareFreedom, compareGiving, compareMixes, compareRealEstate, compareStrategies, freedomSnapshot, gapAnswer, type Market, type PropertyType, freshPlan, health, investmentTargets, legacyAnswer, periods, project, requiredIncome, withDefaults, type LegacyAnswer, type Plan } from './engine/index.ts';
 import { renderForm } from './ui/form.ts';
-import { createCharts, createLegacyChart } from './ui/charts.ts';
+import { createCharts, createFreedomChart, createLegacyChart } from './ui/charts.ts';
 import { parseSaved, renderVersions, type Version } from './ui/versions.ts';
-import { planLabel, renderGap, renderGenerosity, renderHealth, renderRealEstate, renderInvesting, renderLegacy, renderPeriods, renderSimpleYears, renderStrategies, renderSummary, renderTable } from './ui/results.ts';
+import { planLabel, renderFreedom, renderGenerosity, renderHealth, renderMixes, renderPortfolios, renderRealEstate, renderSupport, renderInvesting, renderLegacy, renderPeriods, renderSimpleYears, renderStrategies, renderSummary, renderTable } from './ui/results.ts';
 import { renderBudgetPanel } from './ui/budget-panel.ts';
 import { setupInstall } from './ui/install.ts';
 import { lockNow, unlock, type Session } from './ui/lock.ts';
@@ -12,6 +12,8 @@ import { unseal, WrongPassword } from './vault.ts';
 
 const REAL_KEY = 'financial-planning.real';
 const MODE_KEY = 'financial-planning.mode';
+const TAB_KEY = 'financial-planning.tab';
+type Tab = 'freedom' | 'legacy' | 'giving';
 
 const $ = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
 
@@ -25,6 +27,23 @@ function start(session: Session): void {
   let activeVersion: string | null = null;
   let lastAnswer: LegacyAnswer | null = null;
   const legacyChart = createLegacyChart($('chart-legacy'));
+  const freedomChart = createFreedomChart($('chart-freedom'));
+  const savedTab = readPref(TAB_KEY);
+  let tab: Tab = savedTab === 'legacy' || savedTab === 'giving' ? savedTab : 'freedom';
+  const tabs = Array.from(document.querySelectorAll<HTMLButtonElement>('.tab'));
+  const applyTab = () => {
+    document.body.dataset.tab = tab;
+    tabs.forEach((b) => b.setAttribute('aria-selected', String(b.dataset.tab === tab)));
+  };
+  applyTab();
+  tabs.forEach((b) =>
+    b.addEventListener('click', () => {
+      tab = b.dataset.tab as Tab;
+      writePref(TAB_KEY, tab);
+      applyTab();
+      recompute();
+    }),
+  );
   const persist = () => session.save(JSON.stringify({ plan, versions }));
   const marketSelect = $<HTMLSelectElement>('re-market');
   let reMarket: Market['id'] = plan.rentals.market === 'custom' ? 'affordable' : plan.rentals.market;
@@ -77,6 +96,7 @@ function start(session: Session): void {
     });
   $('btn-save-version').addEventListener('click', () => {
     const a = lastAnswer ?? legacyAnswer(plan);
+    const fr = freedomSnapshot(plan);
     const n = versions.reduce((m, v) => Math.max(m, Number(v.name.replace(/\D+/g, '')) || 0), 0) + 1;
     const v: Version = {
       id: `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`,
@@ -92,6 +112,8 @@ function start(session: Session): void {
         currentRunsOutAge: a.current.runsOutAge,
         savings: plan.savings.current,
         houses: a.goal.projection ? a.goal.projection.summary.legacy.housesGifted + a.goal.projection.summary.legacy.housesAtEnd : undefined,
+        coverageNow: fr.coverageNow,
+        freeForGoodAge: fr.freeForGoodAge,
       },
     };
     versions = [v, ...versions];
@@ -254,28 +276,44 @@ function start(session: Session): void {
 
   function recompute() {
     try {
-      const a = legacyAnswer(plan);
-      lastAnswer = a;
-      renderLegacy(a);
-      legacyChart.update(
-        [
-          ...(a.goal.projection ? [{ label: `Leaving ${money(a.goal.target)} each`, rows: a.goal.projection.rows }] : []),
-          ...(a.stretch.projection && a.stretch.target !== a.goal.target ? [{ label: `Leaving ${money(a.stretch.target)} each`, rows: a.stretch.projection.rows }] : []),
-        ],
-        a.current.projection.rows,
-      );
-      renderGap(gapAnswer(plan), compareMixes(plan), plan.savings.returnRate, plan.legacy.perChild, (id) => replacePlan(applyMix(plan, id)));
-      renderRealEstate(compareRealEstate(plan, reMarket), (type) => replacePlan(applyRealEstate(plan, type as PropertyType['id'], reMarket)));
-      renderGenerosity(compareGiving(plan), (rate) => {
-        const next = structuredClone(plan);
-        next.spending.givingRate = rate;
-        replacePlan(next);
-      });
-      renderSimpleYears(a.current.projection.rows);
+      lastAnswer = null;
+      const showAll = mode === 'full';
+      if (showAll || tab === 'freedom') {
+        const f = freedomSnapshot(plan);
+        renderFreedom(f, plan.savings.current, plan.savings.safeWithdrawalRate);
+        freedomChart.update(f.projection.rows);
+        renderPortfolios(compareFreedom(plan), (id) => {
+          const pick = compareFreedom(plan).find((x) => x.id === id);
+          if (pick) replacePlan(pick.apply(plan));
+        });
+        renderMixes(compareMixes(plan), plan.savings.returnRate, (id) => replacePlan(applyMix(plan, id)));
+        renderRealEstate(compareRealEstate(plan, reMarket), (type) => replacePlan(applyRealEstate(plan, type as PropertyType['id'], reMarket)));
+      }
+      if (showAll || tab === 'legacy') {
+        const a = legacyAnswer(plan);
+        lastAnswer = a;
+        renderLegacy(a);
+        legacyChart.update(
+          [
+            ...(a.goal.projection ? [{ label: `Leaving ${money(a.goal.target)} each`, rows: a.goal.projection.rows }] : []),
+            ...(a.stretch.projection && a.stretch.target !== a.goal.target ? [{ label: `Leaving ${money(a.stretch.target)} each`, rows: a.stretch.projection.rows }] : []),
+          ],
+          a.current.projection.rows,
+        );
+        renderSimpleYears(a.current.projection.rows);
+      }
+      if (showAll || tab === 'giving') {
+        renderSupport(gapAnswer(plan), plan.legacy.perChild);
+        renderGenerosity(compareGiving(plan), (rate) => {
+          const next = structuredClone(plan);
+          next.spending.givingRate = rate;
+          replacePlan(next);
+        });
+      }
       showVersions();
       $('plan-label').textContent = planLabel(plan);
-      if (mode === 'full') {
-        const p = a.current.projection;
+      if (showAll) {
+        const p = project(plan);
         const need = requiredIncome(plan);
         renderHealth(health(p), plan);
         renderInvesting(investmentTargets(p));
@@ -287,7 +325,7 @@ function start(session: Session): void {
       }
       persist();
     } catch (e) {
-      $('legacy-spend-sub').textContent = `Could not compute: ${(e as Error).message}`;
+      $('plan-label').textContent = `Could not compute: ${(e as Error).message}`;
     }
   }
 

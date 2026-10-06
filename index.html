@@ -60,37 +60,38 @@
       </aside>
 
       <main class="content">
-        <section class="legacy-card">
-          <div id="legacy-label" class="legacy-label"></div>
-          <div class="legacy-row">
-            <div>
-              <div class="legacy-small">you can spend</div>
-              <div id="legacy-spend" class="legacy-value">–</div>
-              <div id="legacy-spend-sub" class="legacy-sub"></div>
-            </div>
-            <div>
-              <div class="legacy-small">at your current spending</div>
-              <div id="legacy-current" class="legacy-value legacy-value-2">–</div>
-              <div id="legacy-current-sub" class="legacy-sub"></div>
-            </div>
+        <nav class="tabs" aria-label="Views">
+          <button type="button" class="tab" data-tab="freedom">Freedom</button>
+          <button type="button" class="tab" data-tab="legacy">Legacy</button>
+          <button type="button" class="tab" data-tab="giving">Giving &amp; support</button>
+        </nav>
+
+        <!-- Freedom: income that does not take your time -->
+        <section class="freedom-card tab-freedom">
+          <div class="freedom-label">Passive income covers</div>
+          <div class="freedom-row">
+            <div id="freedom-pct" class="freedom-value">–</div>
+            <div id="freedom-pct-sub" class="freedom-sub"></div>
           </div>
-          <p id="legacy-homes" class="legacy-homes"></p>
+          <div class="cover-bar" aria-hidden="true"><span id="bar-passive" class="bar-passive"></span><span id="bar-support" class="bar-support"></span></div>
+          <ul id="freedom-facts" class="freedom-facts"></ul>
         </section>
 
-        <section class="card">
-          <h2>What you own over your life</h2>
-          <p class="muted">Savings plus home and rental equity, in today's dollars. The end of each line is what passes on at your passing, not counting houses given earlier. A dot marks the age cash runs out; after that the line is houses you would have to sell.</p>
-          <div class="chart legacy-chart"><canvas id="chart-legacy"></canvas></div>
+        <section class="card tab-freedom">
+          <h2>Passive income and spending over your life</h2>
+          <p class="muted">Per month, in today's dollars. Passive income is rental cash flow plus a safe 4% a year drawn from your invested savings. You are free wherever the blue line is above the orange one.</p>
+          <div class="chart legacy-chart"><canvas id="chart-freedom"></canvas></div>
         </section>
 
-        <section class="card">
-          <h2>Close the gap</h2>
-          <p id="gap-intro" class="gap-intro"></p>
+        <section class="card tab-freedom">
+          <h2>Build hands-off income</h2>
+          <p class="muted">Five ways to put your savings to work, from fully hands-off to hands-on, run on your own numbers. Hours are rough owner time per month once everything is bought. "Use" switches your plan to that approach.</p>
+          <div id="freedom-portfolios" class="table-wrap portfolios"></div>
+        </section>
+
+        <details class="card tab-freedom more-options">
+          <summary><h2>Compare more options</h2></summary>
           <div class="gap-grid">
-            <div class="gap-option">
-              <h3>Raise ministry support</h3>
-              <div id="gap-support"></div>
-            </div>
             <div class="gap-option">
               <h3>Choose an investment mix</h3>
               <p class="muted">What a simple index-fund portfolio can expect over the long run, before inflation, and the support you would still need with each. More stocks means bigger swings along the way.</p>
@@ -112,9 +113,46 @@
               <p class="muted">Starting points from 2025–2026 market data: rental houses average about a 7.5% gross yield nationally (ATTOM), small multiplexes trade near a 6% cap rate (Arbor), and a typical Airbnb runs about 57% occupancy with costs of 35–55% of revenue (AirDNA). Every market differs. Check local rents, taxes, insurance and short-term rental rules before buying.</p>
             </div>
           </div>
+        </details>
+
+        <!-- Legacy -->
+        <section class="legacy-card tab-legacy">
+          <div id="legacy-label" class="legacy-label"></div>
+          <div class="legacy-row">
+            <div>
+              <div class="legacy-small">you can spend</div>
+              <div id="legacy-spend" class="legacy-value">–</div>
+              <div id="legacy-spend-sub" class="legacy-sub"></div>
+            </div>
+            <div>
+              <div class="legacy-small">at your current spending</div>
+              <div id="legacy-current" class="legacy-value legacy-value-2">–</div>
+              <div id="legacy-current-sub" class="legacy-sub"></div>
+            </div>
+          </div>
+          <p id="legacy-homes" class="legacy-homes"></p>
         </section>
 
-        <section class="card">
+        <section class="card tab-legacy">
+          <h2>What you own over your life</h2>
+          <p class="muted">Savings plus home and rental equity, in today's dollars. The end of each line is what passes on at your passing, not counting houses given earlier. A dot marks the age cash runs out; after that the line is houses you would have to sell.</p>
+          <div class="chart legacy-chart"><canvas id="chart-legacy"></canvas></div>
+        </section>
+
+        <details class="card every-year tab-legacy">
+          <summary><h2>See every year</h2></summary>
+          <p class="muted">Every year of the plan in today's dollars, at your current spending. Money in is investment return, rental income and any pay or support. Savings is cash and investments at year end. Net worth adds home and rental equity.</p>
+          <div id="simple-years" class="table-wrap simple-years"></div>
+        </details>
+
+        <!-- Giving and support -->
+        <section class="card tab-giving">
+          <h2>Ministry support</h2>
+          <p id="gap-intro" class="gap-intro"></p>
+          <div id="gap-support" class="support-block"></div>
+        </section>
+
+        <section class="card tab-giving">
           <h2>Generosity</h2>
           <p class="muted">What giving more of everything that comes in would mean: your rentals, investment returns and support. "Live on" is household spending without giving that still leaves your goal per child.</p>
           <div id="generosity" class="table-wrap generosity"></div>
@@ -165,14 +203,6 @@
           <p class="muted">Today's dollars, averaged per year. "Needed from investments" is spending not covered by take-home pay and rental income. Red means your investments earn less than that and savings shrink.</p>
           <div id="periods" class="table-wrap periods"></div>
         </section>
-
-        <details class="card every-year">
-          <summary><h2>See every year</h2></summary>
-          <p class="muted">Every year of the plan in today's dollars, at your current spending. Money in is investment return, rental income and any pay. Savings is cash and investments at year end. Net worth adds home and rental equity.</p>
-          <div id="simple-years" class="table-wrap simple-years"></div>
-        </details>
-
-
         <section id="tiles" class="tiles full-only"></section>
 
         <section class="card full-only">

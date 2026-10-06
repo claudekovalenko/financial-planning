@@ -20,51 +20,41 @@ from the budgeting app through a small JSON contract.
 
 ## The main screen
 
-The app opens on one question: how much can you spend each month and still
-leave each child a chosen amount, in today's dollars, when the plan ends?
+The app opens on three tabs, each answering one question.
 
-- **The answer** shows the monthly spending that leaves each child between a
-  goal and a stretch amount (for example $500,000 to $1,000,000), after an
-  optional amount set aside for each grandchild, and what happens at the
-  spending you have entered.
-- **Homes** shows how many houses pass to the family. You can choose to give
-  each child one rental house at an age of your choosing, such as when they
-  start their own family; the child takes it with its remaining loan, the
-  equity counts toward their share, and the portfolio keeps buying to
-  replace it.
-- **One chart** compares what you own over your life on both paths. The end
-  of each line is what passes to your children.
-- **Two short input groups**: your legacy (goal and stretch per child,
-  grandchildren, house gifts) and your life today (savings, spending, rent,
-  age, marriage age, children, plan-to age). Everything else is under
-  "Show all details".
-- **Close the gap** shows what would cover a shortfall. *Ministry support*:
-  the total monthly support to raise from donors (rising with inflation,
-  after the sending organization's admin fee, taxed like income) to never
-  run short and to reach the legacy goal, with the number of supporters at
-  your average gift. *Investment mix*: a stock and bond index-fund mix from
-  40% to 100% stocks, its long-run expected return (stocks 7.5%, bonds 4.5%
-  a year before inflation), when cash runs out, and the support still
-  needed with each. "Use" switches the plan to that mix. *Real estate
-  approach*: rental houses, small multiplexes (2-4 units) and Airbnbs in an
-  affordable, typical or pricey market, with one property's first-year
-  price, cash to buy, rent, cash flow after the mortgage and cash-on-cash
-  return, plus when cash runs out and the support needed if the whole plan
-  used that kind of property. Starting points come from 2025-2026 market
-  data (ATTOM rental yields, Arbor small multifamily cap rates, AirDNA
-  short-term rental outlook) and are meant to be checked locally. On the main screen
-  "runs out" means cash hits zero before any rental is sold.
-- **Generosity** compares giving 10%, 20% and 30% of everything that comes
-  in: giving per month, what the household lives on while still reaching
-  the legacy goal, lifetime giving and the support needed. "Use" sets the
-  giving level.
-- **Versions**: save the current numbers, change them, save again, and
-  compare. "Open" returns to a saved version. Versions are stored with the
-  plan, encrypted on the device, and travel with encrypted copies.
+**Freedom: how much of my family's spending does income I don't work for
+cover?**
 
-The example plan follows the recommended approach: rentals bought one a
-year from now with rent near 10% of the price and running costs near 35% of
-rent, and a modest home.
+- *Passive income covers* shows the share of this year's spending paid by
+  passive income: rental cash flow plus a safe 4% a year drawn from invested
+  savings. Ministry support is shown beside it, because it takes
+  relationships rather than a job. It also shows the tightest year (usually
+  when the house is fullest) and how much is missing then, the "freedom
+  number" (savings that would cover the busiest years at 4%), and the age
+  you are free for good: from then on, passive income covers spending every
+  year.
+- A chart draws passive income (and support) against family spending over
+  your life.
+- *Build hands-off income* compares five approaches on your own numbers:
+  index funds only; index funds plus managed multiplexes, managed rental
+  houses, Airbnbs with a manager, or Airbnbs you run. For each: rough owner
+  hours per month, passive income in ten years, coverage in the tightest
+  year, the age you are free for good, when cash runs out and what is left
+  per child. "Use" switches the plan to it.
+- *Compare more options* holds the stock/bond mixes and the real estate
+  comparison by market.
+
+**Legacy: how much can I spend and still leave my children what I hope to?**
+The goal and stretch amount per child, grandchildren, houses passed on or
+given during life, the net worth chart and every year of the plan.
+
+**Giving & support: what support do I need, and what would giving more
+cost?** Ministry support needed and the generosity comparison at 10%, 20%
+and 30%.
+
+Versions and the inputs (your legacy, your ministry support, your life
+today) appear on every tab. "Show all details" opens the full analysis.
+"Runs out" on these tabs means cash hits zero before any rental is sold.
 
 ## Run it
 

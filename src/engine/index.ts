@@ -11,3 +11,4 @@ export * from './legacy.ts';
 export * from './gap.ts';
 export * from './realestate.ts';
 export * from './generosity.ts';
+export * from './freedom.ts';

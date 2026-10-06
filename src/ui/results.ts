@@ -1,5 +1,5 @@
 import { BOND_RETURN, STOCK_RETURN } from '../engine/index.ts';
-import type { GapAnswer, GivingLevel, Health, RealEstateResult, InvestmentTargets, LegacyAnswer, MixResult, Period, Plan, Projection, RequiredIncome, StrategyResult, YearRow } from '../engine/index.ts';
+import type { FreedomPortfolio, FreedomSnapshot, GapAnswer, GivingLevel, Health, RealEstateResult, InvestmentTargets, LegacyAnswer, MixResult, Period, Plan, Projection, RequiredIncome, StrategyResult, YearRow } from '../engine/index.ts';
 import { money, pct } from './format.ts';
 
 const el = (id: string) => document.getElementById(id)!;
@@ -270,14 +270,13 @@ export function renderLegacy(a: LegacyAnswer): void {
         : `<b>${homes} houses</b> pass to your children, ${L.housesAtEnd - (base.rows.at(-1)!.homeValue > 0 ? 1 : 0)} rentals and your home. That is about ${(homes / kids).toFixed(1)} per child, each one able to house or support a family.`;
 }
 
-export function renderGap(g: GapAnswer, mixes: MixResult[], currentReturn: number, goal: number, onUseMix: (id: string) => void): void {
+export function renderSupport(g: GapAnswer, goal: number): void {
   const need = (n: { monthly: number | null; supporters: number | null }) =>
     n.monthly === null ? 'more than $100,000/mo' : n.monthly === 0 ? 'none' : `${money(n.monthly)}/mo`;
   el('gap-intro').innerHTML =
     g.runsOutAge === null
-      ? `At your current spending your savings <b>never run out</b>. Support or a different mix would add to what you leave behind.`
-      : `At your current spending your savings <b>run out at ${g.runsOutAge}</b>. Here is what would cover it.`;
-
+      ? `At your current spending your savings <b>never run out</b>. Support would add to what you can give and leave behind.`
+      : `At your current spending your savings <b>run out at ${g.runsOutAge}</b>. This is the support that would cover it.`;
   const more = (total: number | null) =>
     total === null || g.raised <= 0 ? '' : total <= g.raised ? ' You have raised enough.' : ` You have ${money(g.raised)}/mo, so ${money(total - g.raised)}/mo more.`;
   const people = (n: { supporters: number | null }) =>
@@ -291,7 +290,10 @@ export function renderGap(g: GapAnswer, mixes: MixResult[], currentReturn: numbe
       ? block(`To never run short and leave each child at least ${money(goal)}`, g.toReachGoal)
       : block('To never run short', g.toNeverRunShort) + block(`To also leave each child ${money(goal)}`, g.toReachGoal)) +
     `<p class="muted">Total support from donors, starting at age ${g.startAge} and rising with inflation until you retire. Assumes a ${Math.round(g.adminFeeRate * 100)}% admin fee and that support is taxed like income.</p>`;
+}
 
+export function renderMixes(mixes: MixResult[], currentReturn: number, onUseMix: (id: string) => void): void {
+  const need = (n: { monthly: number | null }) => (n.monthly === null ? 'over $100,000/mo' : n.monthly === 0 ? 'none' : `${money(n.monthly)}/mo`);
   const head = `<tr><th>Mix, rest in bonds</th><th>Return a year</th><th>Cash runs out</th><th>Support needed</th><th></th></tr>`;
   const body = mixes
     .map((m) => {
@@ -340,4 +342,51 @@ export function renderGenerosity(levels: GivingLevel[], onUse: (rate: number) =>
   root.innerHTML = `<table><thead>${head}</thead><tbody>${body}</tbody></table>` +
     '<p class="muted">Today\'s dollars. "Support needed" is the total monthly ministry support to never run short and reach your goal at your planned spending.</p>';
   root.querySelectorAll<HTMLButtonElement>('button[data-rate]').forEach((b) => b.addEventListener('click', () => onUse(Number(b.dataset.rate))));
+}
+
+export function renderFreedom(f: FreedomSnapshot, savings: number, swr: number): void {
+  const pct = (x: number) => `${Math.round(Math.max(0, x) * 100)}%`;
+  el('freedom-pct').textContent = pct(f.coverageNow);
+  el('freedom-pct-sub').innerHTML =
+    f.coverageNow >= 1
+      ? `of your family's spending today. <b>You are free right now.</b>`
+      : `of your family's spending today: <b>${money(f.passiveNow)}</b> of <b>${money(f.spendNow)}</b> a month.`;
+  const share = (x: number) => `${Math.min(100, Math.max(0, x * 100)).toFixed(1)}%`;
+  el('bar-passive').style.width = share(f.passiveNow / f.spendNow);
+  el('bar-support').style.width = share(Math.min(f.supportNow, Math.max(0, f.spendNow - f.passiveNow)) / f.spendNow);
+  const peakSpend = Math.max(...f.projection.rows.filter((r) => !r.retired).map((r) => (r.expenses.total * r.deflator) / 12), f.spendNow);
+  const freedomNumber = (peakSpend * 12) / swr;
+  const facts = [
+    `<li><span class="key bar-passive"></span>Passive income today: <b>${money(f.passiveNow)}/mo</b>, ${money(f.fromInvestmentsNow)} from investments${f.fromRentalsNow ? ` and ${money(f.fromRentalsNow)} from rentals` : ''}.${f.supportNow ? ` <span class="key bar-support"></span>Ministry support adds <b>${money(f.supportNow)}/mo</b>.` : ''}</li>`,
+    f.lowestCoverage >= 1
+      ? `<li>Even in your busiest years passive income covers spending.</li>`
+      : `<li>Your tightest year is <b>age ${f.lowestAge}</b>: passive income covers ${pct(f.lowestCoverage)}, about <b>${money(f.missingAtLowest)}/mo short</b>.</li>`,
+    `<li>Your freedom number: about <b>${money(freedomNumber, true)}</b> working for you (at ${Math.round(swr * 100)}% a year) would cover your busiest years with no job. You have ${money(savings)}.</li>`,
+    f.freeForGoodAge === null
+      ? `<li><b>Not free for good on this plan.</b> Pick a hands-off approach below or lower the family budget.</li>`
+      : f.freeForGoodAge <= f.projection.rows[0].age
+        ? `<li><b>Free for good from today.</b></li>`
+        : `<li><b>Free for good from age ${f.freeForGoodAge}.</b></li>`,
+  ];
+  el('freedom-facts').innerHTML = facts.join('');
+}
+
+export function renderPortfolios(list: FreedomPortfolio[], onUse: (id: string) => void): void {
+  const pct = (x: number) => `${Math.round(x * 100)}%`;
+  const best = list.reduce((b, r) => (r.lowestCoverage > b.lowestCoverage ? r : b), list[0]);
+  const head = '<tr><th>Approach</th><th>Your time</th><th>Passive income in 10 years</th><th>Covers in the tightest year</th><th>Free for good</th><th>Cash runs out</th><th>Left per child</th><th></th></tr>';
+  const body = list
+    .map((p) => `<tr class="${p.current ? 'current' : ''}"><td><b>${p.name}</b>${p.id === best.id ? ' <span class="muted">Covers the most</span>' : ''}<span class="muted">${p.detail}${p.propertiesTarget ? ` Up to ${p.propertiesTarget} properties.` : ''}</span></td>` +
+      `<td data-label="Your time">${p.hoursPerMonth === 0 ? 'none' : `about ${p.hoursPerMonth} hrs/mo`}</td>` +
+      `<td data-label="Passive income in 10 years" class="${p.passiveIn10Years < 0 ? 'neg' : ''}">${money(p.passiveIn10Years)}/mo <span class="muted">${pct(Math.max(0, p.coverageIn10Years))} of spending</span></td>` +
+      `<td data-label="Covers in the tightest year" class="${p.id === best.id ? 'good' : ''}">${pct(p.lowestCoverage)}</td>` +
+      `<td data-label="Free for good">${p.freeForGoodAge === null ? 'not on this plan' : 'age ' + p.freeForGoodAge}</td>` +
+      `<td data-label="Cash runs out">${p.runsOutAge === null ? 'never' : 'age ' + p.runsOutAge}</td>` +
+      `<td data-label="Left per child">${p.perChildToday > 0 ? money(p.perChildToday) : 'nothing'}</td>` +
+      `<td>${p.current ? '<span class="muted">current</span>' : `<button type="button" data-portfolio="${p.id}">Use</button>`}</td></tr>`)
+    .join('');
+  const root = el('freedom-portfolios');
+  root.innerHTML = `<table><thead>${head}</thead><tbody>${body}</tbody></table>` +
+    '<p class="muted">Real estate is bought one property a year from now in an affordable market with 25% down, using about half your savings; the rest stays in index funds. Managers charge about 8–10% of rent for long-term rentals and about 20% of bookings for Airbnbs.</p>';
+  root.querySelectorAll<HTMLButtonElement>('button[data-portfolio]').forEach((b) => b.addEventListener('click', () => onUse(b.dataset.portfolio!)));
 }

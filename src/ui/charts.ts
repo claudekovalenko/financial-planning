@@ -211,3 +211,33 @@ export function createLegacyChart(canvas: HTMLCanvasElement): {
     },
   };
 }
+
+/** Freedom view: passive income (and support) against spending, per month in today's dollars. */
+export function createFreedomChart(canvas: HTMLCanvasElement): { update(rows: YearRow[]): void } {
+  let chart: Chart | null = null;
+  let last: YearRow[] | null = null;
+  const build = (rows: YearRow[]) => {
+    chart?.destroy();
+    const labels = rows.map((r) => `${r.age}`);
+    const m = (f: (r: YearRow) => number) => rows.map((r) => (f(r) * r.deflator) / 12);
+    const datasets: any[] = [
+      { ...line('Passive income', 0, true), data: m((r) => Math.max(0, r.passiveIncome)) },
+      { ...line('Family spending', 1), data: m((r) => r.expenses.total) },
+    ];
+    if (rows.some((r) => r.support > 0)) {
+      datasets.splice(1, 0, { ...line('Passive income + ministry support', 2), data: m((r) => Math.max(0, r.passiveIncome) + r.support) });
+    }
+    const opts = baseOptions(true);
+    opts.scales.x.ticks = { ...opts.scales.x.ticks, callback: (_v: unknown, i: number) => `age ${labels[i]}` } as typeof opts.scales.x.ticks;
+    opts.plugins.tooltip.callbacks.title = (items: any[]) => `Age ${items[0]?.label ?? ''}`;
+    opts.plugins.tooltip.callbacks.label = (c: any) => ` ${c.dataset.label}: ${money(c.parsed.y)}/mo`;
+    chart = new Chart(canvas, { type: 'line', data: { labels, datasets }, options: opts });
+  };
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => last && build(last));
+  return {
+    update(rows) {
+      last = rows;
+      build(rows);
+    },
+  };
+}
