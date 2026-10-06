@@ -20,7 +20,21 @@ from the budgeting app through a small JSON contract.
 
 ## The main screen
 
-The app opens on three tabs, each answering one question.
+The app opens on four tabs, each answering one question.
+
+**Your plan: where do I stand, what is the path, and what do I work on next?**
+
+- *Your vision* states the three goals in plain words with a status mark:
+  provide for your family for life, leave an inheritance, and raise your
+  children to do the same.
+- *Where to grow* lists the three or four most useful next steps, such as
+  starting the multiplex path, the next building to buy, the ministry
+  support to raise or the family budget that keeps you covered, and when to
+  hand each child a building. Some carry a button that makes the change.
+- *Your path* lays out the stages of life (build the foundation, family
+  arrives, full house, launch the children, hand it down) with the
+  buildings owned, what comes in and what the family spends in each.
+- One chart shows income that doesn't take your time against spending.
 
 **Freedom: how much of my family's spending does income I don't work for
 cover?**

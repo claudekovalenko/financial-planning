@@ -1,5 +1,5 @@
 import { BOND_RETURN, STOCK_RETURN } from '../engine/index.ts';
-import type { FreedomPortfolio, FreedomSnapshot, GapAnswer, GivingLevel, Health, RealEstateResult, InvestmentTargets, LegacyAnswer, MixResult, Period, Plan, Projection, RequiredIncome, StrategyResult, YearRow } from '../engine/index.ts';
+import type { Roadmap, FreedomPortfolio, FreedomSnapshot, GapAnswer, GivingLevel, Health, RealEstateResult, InvestmentTargets, LegacyAnswer, MixResult, Period, Plan, Projection, RequiredIncome, StrategyResult, YearRow } from '../engine/index.ts';
 import { money, pct } from './format.ts';
 
 const el = (id: string) => document.getElementById(id)!;
@@ -389,4 +389,25 @@ export function renderPortfolios(list: FreedomPortfolio[], onUse: (id: string) =
   root.innerHTML = `<table><thead>${head}</thead><tbody>${body}</tbody></table>` +
     '<p class="muted">Real estate is bought one property a year from now in an affordable market with 25% down, using about half your savings; the rest stays in index funds. Managers charge about 8–10% of rent for long-term rentals and about 20% of bookings for Airbnbs.</p>';
   root.querySelectorAll<HTMLButtonElement>('button[data-portfolio]').forEach((b) => b.addEventListener('click', () => onUse(b.dataset.portfolio!)));
+}
+
+export function renderRoadmap(r: Roadmap, onApply: (actionId: string) => void): void {
+  const marks = { good: '✓', watch: '!', short: '!' } as const;
+  el('plan-goals').innerHTML = r.goals
+    .map((g) => `<li><span class="mark ${g.status}" aria-label="${g.status === 'good' ? 'on track' : g.status === 'watch' ? 'needs attention' : 'not yet'}">${marks[g.status]}</span>` +
+      `<div class="g-title">${esc(g.title)}</div><div class="g-head">${esc(g.headline)}</div><div class="g-detail">${esc(g.detail)}</div></li>`)
+    .join('');
+  const word = { good: 'Covered by income', watch: 'Drawing on savings', short: 'Savings run out' } as const;
+  el('plan-stages').innerHTML = r.stages
+    .map((s) => `<li><span class="dot ${s.status}"></span><div class="s-head"><span class="s-name">${esc(s.name)}</span><span class="s-ages">ages ${s.fromAge}–${s.toAge}</span><span class="s-status ${s.status}">${word[s.status]}</span></div>` +
+      `<div class="s-sum">${esc(s.summary)}</div>` +
+      `<div class="s-nums"><span><b>${s.buildings}</b> building${s.buildings === 1 ? '' : 's'}${s.boughtInStage ? ` (${s.boughtInStage} bought)` : ''}</span>` +
+      `<span>comes in <b>${money(Math.round((s.passive + s.support) / 100) * 100)}</b>/mo</span>` +
+      `<span>family spends <b>${money(Math.round(s.spending / 100) * 100)}</b>/mo</span></div></li>`)
+    .join('');
+  const root = el('plan-actions');
+  root.innerHTML = r.actions
+    .map((a) => `<li><div class="a-title">${esc(a.title)}</div><div class="a-detail">${esc(a.detail)}</div>${a.button ? `<button type="button" class="primary" data-action="${a.id}">${esc(a.button.label)}</button>` : ''}</li>`)
+    .join('');
+  root.querySelectorAll<HTMLButtonElement>('button[data-action]').forEach((b) => b.addEventListener('click', () => onApply(b.dataset.action!)));
 }

@@ -9,7 +9,8 @@ export function renderForm(root: HTMLElement, getPlan: () => Plan, onChange: () 
   for (const section of sections) {
     const details = document.createElement('details');
     details.className = section.essentials ? 'section essentials' : 'section full-only';
-    details.open = section.essentials === true || section.id === 'income' || section.id === 'spending';
+    // Only the everyday numbers start open; the rest stay tucked away until needed.
+    details.open = section.id === 'essentials-life' || section.id === 'income' || section.id === 'spending';
     const summary = document.createElement('summary');
     summary.textContent = section.title;
     details.appendChild(summary);

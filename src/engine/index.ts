@@ -12,3 +12,4 @@ export * from './gap.ts';
 export * from './realestate.ts';
 export * from './generosity.ts';
 export * from './freedom.ts';
+export * from './roadmap.ts';

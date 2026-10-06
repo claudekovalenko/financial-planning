@@ -1,8 +1,8 @@
-import { applyMix, applyRealEstate, applyStrategy, compareFreedom, compareGiving, compareMixes, compareRealEstate, compareStrategies, freedomSnapshot, gapAnswer, type Market, type PropertyType, freshPlan, health, investmentTargets, legacyAnswer, periods, project, requiredIncome, withDefaults, type LegacyAnswer, type Plan } from './engine/index.ts';
+import { roadmap, applyMix, applyRealEstate, applyStrategy, compareFreedom, compareGiving, compareMixes, compareRealEstate, compareStrategies, freedomSnapshot, gapAnswer, type Market, type PropertyType, freshPlan, health, investmentTargets, legacyAnswer, periods, project, requiredIncome, withDefaults, type LegacyAnswer, type Plan } from './engine/index.ts';
 import { renderForm } from './ui/form.ts';
 import { createCharts, createFreedomChart, createLegacyChart } from './ui/charts.ts';
 import { parseSaved, renderVersions, type Version } from './ui/versions.ts';
-import { planLabel, renderFreedom, renderGenerosity, renderHealth, renderMixes, renderPortfolios, renderRealEstate, renderSupport, renderInvesting, renderLegacy, renderPeriods, renderSimpleYears, renderStrategies, renderSummary, renderTable } from './ui/results.ts';
+import { planLabel, renderRoadmap, renderFreedom, renderGenerosity, renderHealth, renderMixes, renderPortfolios, renderRealEstate, renderSupport, renderInvesting, renderLegacy, renderPeriods, renderSimpleYears, renderStrategies, renderSummary, renderTable } from './ui/results.ts';
 import { renderBudgetPanel } from './ui/budget-panel.ts';
 import { setupInstall } from './ui/install.ts';
 import { lockNow, unlock, type Session } from './ui/lock.ts';
@@ -13,7 +13,7 @@ import { unseal, WrongPassword } from './vault.ts';
 const REAL_KEY = 'financial-planning.real';
 const MODE_KEY = 'financial-planning.mode';
 const TAB_KEY = 'financial-planning.tab';
-type Tab = 'freedom' | 'legacy' | 'giving';
+type Tab = 'plan' | 'freedom' | 'legacy' | 'giving';
 
 const $ = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
 
@@ -28,12 +28,17 @@ function start(session: Session): void {
   let lastAnswer: LegacyAnswer | null = null;
   const legacyChart = createLegacyChart($('chart-legacy'));
   const freedomChart = createFreedomChart($('chart-freedom'));
+  const planChart = createFreedomChart($('chart-plan'));
+  let real = readPref(REAL_KEY) === 'true';
+  let mode: 'simple' | 'full' = readPref(MODE_KEY) === 'full' ? 'full' : 'simple';
   const savedTab = readPref(TAB_KEY);
-  let tab: Tab = savedTab === 'legacy' || savedTab === 'giving' ? savedTab : 'freedom';
+  let tab: Tab = savedTab === 'freedom' || savedTab === 'legacy' || savedTab === 'giving' ? savedTab : 'plan';
   const tabs = Array.from(document.querySelectorAll<HTMLButtonElement>('.tab'));
+  const panes = Array.from(document.querySelectorAll<HTMLElement>('[data-pane]'));
   const applyTab = () => {
     document.body.dataset.tab = tab;
     tabs.forEach((b) => b.setAttribute('aria-selected', String(b.dataset.tab === tab)));
+    panes.forEach((el) => (el.hidden = mode === 'simple' && el.dataset.pane !== tab));
   };
   applyTab();
   tabs.forEach((b) =>
@@ -52,8 +57,6 @@ function start(session: Session): void {
     reMarket = marketSelect.value as Market['id'];
     recompute();
   });
-  let real = readPref(REAL_KEY) === 'true';
-  let mode: 'simple' | 'full' = readPref(MODE_KEY) === 'full' ? 'full' : 'simple';
 
   const charts = createCharts({
     netWorth: $('chart-networth'),
@@ -129,6 +132,7 @@ function start(session: Session): void {
     mode = mode === 'simple' ? 'full' : 'simple';
     writePref(MODE_KEY, mode);
     applyMode();
+    applyTab();
     recompute();
   });
 
@@ -278,6 +282,14 @@ function start(session: Session): void {
     try {
       lastAnswer = null;
       const showAll = mode === 'full';
+      if (showAll || tab === 'plan') {
+        const r = roadmap(plan);
+        renderRoadmap(r, (id) => {
+          const act = r.actions.find((x) => x.id === id);
+          if (act?.button) replacePlan(act.button.apply(plan));
+        });
+        planChart.update(r.rows);
+      }
       if (showAll || tab === 'freedom') {
         const f = freedomSnapshot(plan);
         renderFreedom(f, plan.savings.current, plan.savings.safeWithdrawalRate);

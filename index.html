@@ -61,13 +61,37 @@
 
       <main class="content">
         <nav class="tabs" aria-label="Views">
+          <button type="button" class="tab" data-tab="plan">Your plan</button>
           <button type="button" class="tab" data-tab="freedom">Freedom</button>
           <button type="button" class="tab" data-tab="legacy">Legacy</button>
-          <button type="button" class="tab" data-tab="giving">Giving &amp; support</button>
+          <button type="button" class="tab" data-tab="giving">Giving</button>
         </nav>
 
+        <!-- Your plan: the vision, the path, what to work on -->
+        <section class="plan-vision" data-pane="plan">
+          <h2>Your vision</h2>
+          <ul id="plan-goals" class="goals"></ul>
+        </section>
+
+        <section class="card" data-pane="plan">
+          <h2>Where to grow</h2>
+          <ol id="plan-actions" class="grow-list"></ol>
+        </section>
+
+        <section class="card" data-pane="plan">
+          <h2>Your path</h2>
+          <p class="muted">Each stage of life, with the buildings you own and what comes in against what your family spends, per month in today's dollars.</p>
+          <ol id="plan-stages" class="stages"></ol>
+        </section>
+
+        <section class="card" data-pane="plan">
+          <h2>Income that doesn't take your time</h2>
+          <p class="muted">Per month, in today's dollars. Your family is covered wherever the blue line is above the orange one.</p>
+          <div class="chart legacy-chart"><canvas id="chart-plan"></canvas></div>
+        </section>
+
         <!-- Freedom: income that does not take your time -->
-        <section class="freedom-card tab-freedom">
+        <section class="freedom-card" data-pane="freedom">
           <div class="freedom-label">Passive income covers</div>
           <div class="freedom-row">
             <div id="freedom-pct" class="freedom-value">–</div>
@@ -77,19 +101,19 @@
           <ul id="freedom-facts" class="freedom-facts"></ul>
         </section>
 
-        <section class="card tab-freedom">
+        <section class="card" data-pane="freedom">
           <h2>Passive income and spending over your life</h2>
           <p class="muted">Per month, in today's dollars. Passive income is rental cash flow plus a safe 4% a year drawn from your invested savings. You are free wherever the blue line is above the orange one.</p>
           <div class="chart legacy-chart"><canvas id="chart-freedom"></canvas></div>
         </section>
 
-        <section class="card tab-freedom">
+        <section class="card" data-pane="freedom">
           <h2>Build hands-off income</h2>
           <p class="muted">Five ways to put your savings to work, from fully hands-off to hands-on, run on your own numbers. Hours are rough owner time per month once everything is bought. "Use" switches your plan to that approach.</p>
           <div id="freedom-portfolios" class="table-wrap portfolios"></div>
         </section>
 
-        <details class="card tab-freedom more-options">
+        <details class="card more-options" data-pane="freedom">
           <summary><h2>Compare more options</h2></summary>
           <div class="gap-grid">
             <div class="gap-option">
@@ -116,7 +140,7 @@
         </details>
 
         <!-- Legacy -->
-        <section class="legacy-card tab-legacy">
+        <section class="legacy-card" data-pane="legacy">
           <div id="legacy-label" class="legacy-label"></div>
           <div class="legacy-row">
             <div>
@@ -133,26 +157,26 @@
           <p id="legacy-homes" class="legacy-homes"></p>
         </section>
 
-        <section class="card tab-legacy">
+        <section class="card" data-pane="legacy">
           <h2>What you own over your life</h2>
           <p class="muted">Savings plus home and rental equity, in today's dollars. The end of each line is what passes on at your passing, not counting houses given earlier. A dot marks the age cash runs out; after that the line is houses you would have to sell.</p>
           <div class="chart legacy-chart"><canvas id="chart-legacy"></canvas></div>
         </section>
 
-        <details class="card every-year tab-legacy">
+        <details class="card every-year" data-pane="legacy">
           <summary><h2>See every year</h2></summary>
           <p class="muted">Every year of the plan in today's dollars, at your current spending. Money in is investment return, rental income and any pay or support. Savings is cash and investments at year end. Net worth adds home and rental equity.</p>
           <div id="simple-years" class="table-wrap simple-years"></div>
         </details>
 
         <!-- Giving and support -->
-        <section class="card tab-giving">
+        <section class="card" data-pane="giving">
           <h2>Ministry support</h2>
           <p id="gap-intro" class="gap-intro"></p>
           <div id="gap-support" class="support-block"></div>
         </section>
 
-        <section class="card tab-giving">
+        <section class="card" data-pane="giving">
           <h2>Generosity</h2>
           <p class="muted">What giving more of everything that comes in would mean: your rentals, investment returns and support. "Live on" is household spending without giving that still leaves your goal per child.</p>
           <div id="generosity" class="table-wrap generosity"></div>
